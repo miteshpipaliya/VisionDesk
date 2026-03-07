@@ -87,34 +87,68 @@ function useClock(fmt24 = false) {
 // ─── REAL-TIME WEATHER API ────────────────────────────────────────────────────
 // Uses OpenWeatherMap free tier — sign up at https://openweathermap.org/api
 // Replace the string below with your own API key, OR set VITE_OWM_KEY in .env
-const OWM_KEY = import.meta.env?.VITE_OWM_KEY || "PASTE_YOUR_OPENWEATHERMAP_KEY_HERE";
+// ─── Open-Meteo: 100% free, no API key required ─────────────────────────────
+// Geocoding: https://geocoding-api.open-meteo.com
+// Weather:   https://api.open-meteo.com
+
+/**
+ * WMO weather code → human label + emoji
+ * https://open-meteo.com/en/docs#weathervariables
+ */
+function decodeWMO(code) {
+  if (code === 0)            return { label:"Clear Sky",          emoji:"☀️",  condition:"Clear"         };
+  if (code <= 2)             return { label:"Partly Cloudy",      emoji:"⛅",  condition:"Clouds"        };
+  if (code === 3)            return { label:"Overcast",           emoji:"☁️",  condition:"Clouds"        };
+  if (code <= 49)            return { label:"Fog",                emoji:"🌫️", condition:"Fog"           };
+  if (code <= 57)            return { label:"Drizzle",            emoji:"🌦️", condition:"Drizzle"       };
+  if (code <= 67)            return { label:"Rain",               emoji:"🌧️", condition:"Rain"          };
+  if (code <= 77)            return { label:"Snow",               emoji:"❄️",  condition:"Snow"          };
+  if (code <= 82)            return { label:"Rain Showers",       emoji:"🌦️", condition:"Rain"          };
+  if (code <= 86)            return { label:"Snow Showers",       emoji:"🌨️", condition:"Snow"          };
+  if (code <= 99)            return { label:"Thunderstorm",       emoji:"⛈️",  condition:"Thunderstorm"  };
+  return                            { label:"Unknown",            emoji:"🌡️", condition:"Unknown"       };
+}
 
 /**
  * fetchWeather(city)
- * Calls OpenWeatherMap /data/2.5/weather endpoint with metric units.
+ * Step 1 — Geocode city name via Open-Meteo geocoding API (no key needed)
+ * Step 2 — Fetch weather from Open-Meteo weather API (no key needed)
  * Returns a normalised weather object or throws on failure.
  */
 async function fetchWeather(city) {
   if (!city || !city.trim()) throw new Error("No city provided");
-  const url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city.trim())}&appid=${OWM_KEY}&units=metric`;
-  const res  = await fetch(url);
-  if (!res.ok) {
-    if (res.status === 404) throw new Error(`City "${city}" not found`);
-    if (res.status === 401) throw new Error("Invalid API key — check your OWM key");
-    throw new Error(`Weather fetch failed (${res.status})`);
-  }
-  const d = await res.json();
+
+  // Step 1: Geocode
+  const geoUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city.trim())}&count=1&language=en&format=json`;
+  const geoRes = await fetch(geoUrl);
+  if (!geoRes.ok) throw new Error(`Geocoding failed (${geoRes.status})`);
+  const geoData = await geoRes.json();
+  if (!geoData.results || geoData.results.length === 0)
+    throw new Error(`City "${city}" not found. Try a different spelling.`);
+
+  const loc = geoData.results[0];
+  const { latitude, longitude, name, country, country_code } = loc;
+
+  // Step 2: Fetch weather
+  const wxUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m&wind_speed_unit=kmh&temperature_unit=celsius&timezone=auto`;
+  const wxRes = await fetch(wxUrl);
+  if (!wxRes.ok) throw new Error(`Weather fetch failed (${wxRes.status})`);
+  const wx = await wxRes.json();
+  const cur = wx.current;
+
+  const { label, emoji, condition } = decodeWMO(cur.weather_code);
+
   return {
-    city:        d.name,
-    country:     d.sys.country,
-    temp:        Math.round(d.main.temp),          // °C
-    feels:       Math.round(d.main.feels_like),
-    humidity:    d.main.humidity,                  // %
-    wind:        Math.round(d.wind.speed * 3.6),   // m/s → km/h
-    condition:   d.weather[0].main,                // "Clear", "Rain", …
-    description: d.weather[0].description,
-    iconCode:    d.weather[0].icon,
-    iconUrl:     `https://openweathermap.org/img/wn/${d.weather[0].icon}@2x.png`,
+    city:        name,
+    country:     country_code || country || "",
+    temp:        Math.round(cur.temperature_2m),
+    feels:       Math.round(cur.apparent_temperature),
+    humidity:    cur.relative_humidity_2m,
+    wind:        Math.round(cur.wind_speed_10m),
+    condition,
+    description: label,
+    emoji,
+    iconUrl:     null,           // Open-Meteo has no icon CDN — use emoji instead
     updatedAt:   Date.now(),
   };
 }
@@ -192,7 +226,7 @@ function WeatherWidget({ city, darkMode }) {
         {error   && <span style={{ fontSize:11, color:"#ef4444", fontFamily:"'Nunito',sans-serif" }} title={error}>⚠️ Weather</span>}
         {weather && !loading && (
           <>
-            <span style={{ fontSize:17, lineHeight:1 }}>{weatherEmoji(weather.condition)}</span>
+            <span style={{ fontSize:17, lineHeight:1 }}>{weather.emoji}</span>
             <span style={{ fontSize:14, fontWeight:900, color:tp, fontFamily:"'Nunito',sans-serif", letterSpacing:-0.3 }}>{weather.temp}°C</span>
             <span style={{ fontSize:11, color:tm, fontFamily:"'Nunito',sans-serif" }}>{weather.city}, {weather.country}</span>
           </>
@@ -224,8 +258,7 @@ function WeatherWidget({ city, darkMode }) {
                   {weather.description.charAt(0).toUpperCase()+weather.description.slice(1)}
                 </div>
               </div>
-              <img src={weather.iconUrl} alt={weather.condition}
-                style={{ width:52, height:52, filter: darkMode ? "brightness(1.2)" : "none" }} />
+              <span style={{ fontSize:44, lineHeight:1 }}>{weather.emoji}</span>
             </div>
             <div style={{ marginTop:6 }}>
               <span style={{ fontSize:36, fontWeight:900, color:tp, fontFamily:"'Nunito',sans-serif", letterSpacing:-1 }}>{weather.temp}°C</span>
@@ -260,11 +293,9 @@ function WeatherWidget({ city, darkMode }) {
           animation:"dropIn 0.18s ease", backdropFilter:"blur(20px)" }}>
           <div style={{ fontSize:13, color:"#ef4444", fontFamily:"'Nunito',sans-serif", fontWeight:700, marginBottom:4 }}>⚠️ Weather Error</div>
           <div style={{ fontSize:11, color:tm, fontFamily:"'Nunito',sans-serif", lineHeight:1.6 }}>{error}</div>
-          {error.includes("API key") && (
-            <div style={{ marginTop:8, fontSize:10, color:"#6366f1", fontFamily:"'Nunito',sans-serif" }}>
-              Get a free key at openweathermap.org and set VITE_OWM_KEY
-            </div>
-          )}
+          <div style={{ marginTop:8, fontSize:10, color:"#6366f1", fontFamily:"'Nunito',sans-serif" }}>
+            Tip: Use the city name as registered (e.g. "Mumbai", "Los Angeles")
+          </div>
         </div>
       )}
     </div>
@@ -631,25 +662,46 @@ function TodoPanel({ darkMode, userEmail }) {
   );
 }
 
-// ─── JOURNAL PANEL (persistent per date) ──────────────────────────────────────
+// Journal font options (subset of FONTS, all load via Google Fonts import already)
+const JOURNAL_FONTS = [
+  { label:"Caveat",         value:"'Caveat', cursive",          preview:"Handwritten" },
+  { label:"Patrick Hand",   value:"'Patrick Hand', cursive",    preview:"Neat hand"   },
+  { label:"Indie Flower",   value:"'Indie Flower', cursive",    preview:"Casual"      },
+  { label:"Dancing Script", value:"'Dancing Script', cursive",  preview:"Elegant"     },
+  { label:"Nunito",         value:"'Nunito', sans-serif",       preview:"Clean"       },
+  { label:"Poppins",        value:"'Poppins', sans-serif",      preview:"Modern"      },
+  { label:"Montserrat",     value:"'Montserrat', sans-serif",   preview:"Professional"},
+  { label:"Open Sans",      value:"'Open Sans', sans-serif",    preview:"Readable"    },
+];
+
+// ─── JOURNAL PANEL (persistent per date + font picker) ────────────────────────
 function JournalPanel({ darkMode, userEmail }) {
   const today   = todayKey();
   const baseKey = `visionbook_journal_${userEmail}`;
+  const fontKey = `visionbook_journal_font_${userEmail}`;
 
-  // Load all journal entries map: { "YYYY-MM-DD": "content" }
-  const [entries,     setEntries]     = useState(() => LS.get(baseKey, {}));
-  const [selectedDate,setSelectedDate]= useState(today);
-  const [content,     setContent]     = useState(() => (LS.get(baseKey,{}))[today] || "");
-  const [saved,       setSaved]       = useState(true);
-  const saveTimer = useRef(null);
+  const [entries,      setEntries]      = useState(() => LS.get(baseKey, {}));
+  const [selectedDate, setSelectedDate] = useState(today);
+  const [content,      setContent]      = useState(() => (LS.get(baseKey,{}))[today] || "");
+  const [saved,        setSaved]        = useState(true);
+  const [journalFont,  setJournalFont]  = useState(() => LS.get(fontKey, "'Caveat', cursive"));
+  const [showFontPick, setShowFontPick] = useState(false);
+  const saveTimer  = useRef(null);
+  const fontBtnRef = useRef(null);
 
-  // When date changes, load that day's content
+  useEffect(() => {
+    const fn = (e) => { if(fontBtnRef.current && !fontBtnRef.current.contains(e.target)) setShowFontPick(false); };
+    document.addEventListener("mousedown", fn);
+    return () => document.removeEventListener("mousedown", fn);
+  }, []);
+
   useEffect(() => {
     setContent(entries[selectedDate] || "");
     setSaved(true);
   }, [selectedDate]);
 
-  // Auto-save with debounce 1.5s
+  useEffect(() => { LS.set(fontKey, journalFont); }, [journalFont, fontKey]);
+
   const handleChange = (val) => {
     setContent(val);
     setSaved(false);
@@ -664,22 +716,57 @@ function JournalPanel({ darkMode, userEmail }) {
     }, 1500);
   };
 
-  // Sorted list of all dates that have entries
-  const allDates = Object.keys(entries).filter(d => entries[d]?.trim()).sort((a,b) => b.localeCompare(a));
-  const words = content.trim().split(/\s+/).filter(Boolean).length;
-
-  const dark = darkMode;
-  const inp = { width:"100%", padding:"9px 11px", borderRadius:9, border:dark?"1px solid #444":"1px solid #ddd", background:dark?"#2a2a2a":"#f5f5f5", color:dark?"#fff":"#1a1a2e", fontSize:12, outline:"none", fontFamily:"'Nunito',sans-serif", appearance:"none", cursor:"pointer" };
+  const allDates     = Object.keys(entries).filter(d => entries[d]?.trim()).sort((a,b) => b.localeCompare(a));
+  const words        = content.trim().split(/\s+/).filter(Boolean).length;
+  const dark         = darkMode;
+  const selStyle     = { width:"100%", padding:"9px 11px", borderRadius:9, border:dark?"1px solid #444":"1px solid #ddd", background:dark?"#2a2a2a":"#f5f5f5", color:dark?"#fff":"#1a1a2e", fontSize:12, outline:"none", fontFamily:"'Nunito',sans-serif", appearance:"none", cursor:"pointer" };
+  const curFontLabel = JOURNAL_FONTS.find(f => f.value===journalFont)?.label || "Caveat";
 
   return (
     <div style={{ padding:"0 0 20px" }}>
-      <h3 style={{ fontFamily:"'Nunito',sans-serif", fontWeight:800, fontSize:13, letterSpacing:1, textTransform:"uppercase", color:dark?"#aaa":"#888", margin:"0 0 0", padding:"16px 18px 0" }}>Daily Journal</h3>
+      {/* ── Header + Font Picker ── */}
+      <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"16px 18px 0" }}>
+        <h3 style={{ fontFamily:"'Nunito',sans-serif", fontWeight:800, fontSize:13, letterSpacing:1, textTransform:"uppercase", color:dark?"#aaa":"#888", margin:0 }}>Daily Journal</h3>
+        <div ref={fontBtnRef} style={{ position:"relative" }}>
+          <button onClick={() => setShowFontPick(p => !p)}
+            style={{ display:"flex", alignItems:"center", gap:5, padding:"5px 11px", borderRadius:9,
+              border:dark?"1px solid rgba(255,255,255,0.1)":"1px solid #ddd",
+              background:showFontPick?(dark?"rgba(99,102,241,0.2)":"rgba(99,102,241,0.08)"):(dark?"rgba(255,255,255,0.05)":"#f5f5f5"),
+              color:dark?"#ccc":"#444", fontSize:11, fontWeight:700, cursor:"pointer",
+              fontFamily:"'Nunito',sans-serif", transition:"all 0.15s" }}>
+            <span style={{ fontFamily:journalFont, fontSize:14 }}>Aa</span>
+            <span>{curFontLabel}</span>
+            <span style={{ fontSize:9, opacity:0.6 }}>{showFontPick?"▲":"▼"}</span>
+          </button>
+          {showFontPick && (
+            <div style={{ position:"absolute", top:36, right:0, width:204, borderRadius:14,
+              background:dark?"rgba(16,16,32,0.98)":"#fff",
+              border:dark?"1px solid rgba(255,255,255,0.09)":"1px solid rgba(0,0,0,0.08)",
+              boxShadow:"0 16px 48px rgba(0,0,0,0.3)", zIndex:9999, overflow:"hidden",
+              animation:"dropIn 0.16s ease" }}>
+              <div style={{ padding:"8px 14px 4px", fontSize:10, fontWeight:800, color:"#6366f1", letterSpacing:0.8, textTransform:"uppercase", fontFamily:"'Nunito',sans-serif" }}>Journal Font</div>
+              {JOURNAL_FONTS.map(ft => (
+                <div key={ft.value} onClick={() => { setJournalFont(ft.value); setShowFontPick(false); }}
+                  style={{ display:"flex", justifyContent:"space-between", alignItems:"center",
+                    padding:"9px 14px", cursor:"pointer",
+                    background:journalFont===ft.value?(dark?"rgba(99,102,241,0.2)":"rgba(99,102,241,0.09)"):"transparent",
+                    borderLeft:journalFont===ft.value?"3px solid #6366f1":"3px solid transparent",
+                    transition:"background 0.13s" }}
+                  onMouseEnter={e => { if(journalFont!==ft.value) e.currentTarget.style.background=dark?"rgba(255,255,255,0.05)":"rgba(0,0,0,0.03)"; }}
+                  onMouseLeave={e => { if(journalFont!==ft.value) e.currentTarget.style.background="transparent"; }}>
+                  <span style={{ fontFamily:ft.value, fontSize:14, color:dark?"#e0e0e0":"#1a1a2e" }}>{ft.label}</span>
+                  <span style={{ fontSize:10, color:"#888", fontFamily:"'Nunito',sans-serif" }}>{ft.preview}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
 
-      {/* Date selector */}
+      {/* ── Date Selector ── */}
       <div style={{ padding:"10px 18px", display:"flex", alignItems:"center", gap:10 }}>
         <div style={{ flex:1 }}>
-          <select value={selectedDate} onChange={e => setSelectedDate(e.target.value)} style={inp}>
-            {/* Today always available */}
+          <select value={selectedDate} onChange={e => setSelectedDate(e.target.value)} style={selStyle}>
             {!allDates.includes(today) && <option value={today}>📅 Today — {fmtDate(today)}</option>}
             {allDates.map(d => (
               <option key={d} value={d}>{d===today?"📅 Today":"📖 "+fmtDate(d)}</option>
@@ -696,11 +783,17 @@ function JournalPanel({ darkMode, userEmail }) {
         {fmtDate(selectedDate)}
       </div>
 
+      {/* ── Textarea ── */}
       <div style={{ padding:"0 18px" }}>
         <textarea value={content} onChange={e => handleChange(e.target.value)}
           disabled={selectedDate !== today}
           placeholder={selectedDate===today ? "Write your thoughts for today..." : "No entry for this day."}
-          style={{ width:"100%", height:220, padding:"12px 14px", borderRadius:10, border:dark?"1px solid #444":"1px solid #e0e0e0", background:selectedDate!==today?(dark?"#1a1a2a":"#f5f5f5"):dark?"#2a2a2a":"#fafafa", color:dark?"#eee":"#222", fontSize:13, lineHeight:1.75, resize:"none", outline:"none", fontFamily:"'Caveat',cursive", boxSizing:"border-box", opacity:selectedDate!==today?0.7:1 }} />
+          style={{ width:"100%", height:220, padding:"12px 14px", borderRadius:10,
+            border:dark?"1px solid #444":"1px solid #e0e0e0",
+            background:selectedDate!==today?(dark?"#1a1a2a":"#f5f5f5"):dark?"#2a2a2a":"#fafafa",
+            color:dark?"#eee":"#222", fontSize:14, lineHeight:1.75, resize:"none", outline:"none",
+            fontFamily:journalFont, boxSizing:"border-box", opacity:selectedDate!==today?0.7:1,
+            transition:"font-family 0.15s" }} />
         <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginTop:4 }}>
           <span style={{ fontSize:11, color:dark?"#666":"#bbb", fontFamily:"'Nunito',sans-serif" }}>{words} words</span>
           <span style={{ fontSize:11, color:saved?"#4ade80":"#f59e0b", fontFamily:"'Nunito',sans-serif", fontWeight:700 }}>
@@ -709,15 +802,19 @@ function JournalPanel({ darkMode, userEmail }) {
         </div>
       </div>
 
-      {/* Past entries summary */}
+      {/* ── Past Entries ── */}
       {allDates.filter(d => d!==today).length>0 && (
-        <div style={{ margin:"12px 18px 0", padding:"10px 14px", borderRadius:12, background:dark?"rgba(99,102,241,0.08)":"rgba(99,102,241,0.06)", border:dark?"1px solid rgba(99,102,241,0.15)":"1px solid rgba(99,102,241,0.12)" }}>
+        <div style={{ margin:"12px 18px 0", padding:"10px 14px", borderRadius:12,
+          background:dark?"rgba(99,102,241,0.08)":"rgba(99,102,241,0.06)",
+          border:dark?"1px solid rgba(99,102,241,0.15)":"1px solid rgba(99,102,241,0.12)" }}>
           <div style={{ fontSize:11, fontWeight:800, color:"#6366f1", fontFamily:"'Nunito',sans-serif", marginBottom:6, textTransform:"uppercase", letterSpacing:0.8 }}>
             Past Entries ({allDates.filter(d=>d!==today).length})
           </div>
           {allDates.filter(d=>d!==today).slice(0,5).map(d => (
             <div key={d} onClick={() => setSelectedDate(d)}
-              style={{ fontSize:12, color:dark?"#aaa":"#666", fontFamily:"'Nunito',sans-serif", padding:"4px 0", cursor:"pointer", borderBottom:dark?"1px solid rgba(255,255,255,0.04)":"1px solid rgba(0,0,0,0.04)", display:"flex", justifyContent:"space-between" }}>
+              style={{ fontSize:12, color:dark?"#aaa":"#666", fontFamily:"'Nunito',sans-serif", padding:"5px 0", cursor:"pointer",
+                borderBottom:dark?"1px solid rgba(255,255,255,0.04)":"1px solid rgba(0,0,0,0.04)",
+                display:"flex", justifyContent:"space-between" }}>
               <span>📖 {fmtDate(d)}</span>
               <span style={{ color:"#6366f1", fontWeight:700 }}>{(entries[d]||"").trim().split(/\s+/).filter(Boolean).length}w</span>
             </div>
@@ -973,6 +1070,9 @@ export default function App() {
 
   const dark = settings.darkMode;
   const { dateStr, timeStr } = useClock(settings.fmt24);
+
+  // ── Set page title ───────────────────────────────────────────────────────────
+  useEffect(() => { document.title = "v1book — Your Smart Notes Workspace"; }, []);
 
   // ── Auto-login from saved session ─────────────────────────────────────────
   useEffect(() => {
