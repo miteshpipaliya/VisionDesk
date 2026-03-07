@@ -84,6 +84,193 @@ function useClock(fmt24 = false) {
   return { dateStr, timeStr:`${pad(h)}:${pad(m)}:${pad(s)}${suf}` };
 }
 
+// ─── REAL-TIME WEATHER API ────────────────────────────────────────────────────
+// Uses OpenWeatherMap free tier — sign up at https://openweathermap.org/api
+// Replace the string below with your own API key, OR set VITE_OWM_KEY in .env
+const OWM_KEY = import.meta.env?.VITE_OWM_KEY || "PASTE_YOUR_OPENWEATHERMAP_KEY_HERE";
+
+/**
+ * fetchWeather(city)
+ * Calls OpenWeatherMap /data/2.5/weather endpoint with metric units.
+ * Returns a normalised weather object or throws on failure.
+ */
+async function fetchWeather(city) {
+  if (!city || !city.trim()) throw new Error("No city provided");
+  const url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city.trim())}&appid=${OWM_KEY}&units=metric`;
+  const res  = await fetch(url);
+  if (!res.ok) {
+    if (res.status === 404) throw new Error(`City "${city}" not found`);
+    if (res.status === 401) throw new Error("Invalid API key — check your OWM key");
+    throw new Error(`Weather fetch failed (${res.status})`);
+  }
+  const d = await res.json();
+  return {
+    city:        d.name,
+    country:     d.sys.country,
+    temp:        Math.round(d.main.temp),          // °C
+    feels:       Math.round(d.main.feels_like),
+    humidity:    d.main.humidity,                  // %
+    wind:        Math.round(d.wind.speed * 3.6),   // m/s → km/h
+    condition:   d.weather[0].main,                // "Clear", "Rain", …
+    description: d.weather[0].description,
+    iconCode:    d.weather[0].icon,
+    iconUrl:     `https://openweathermap.org/img/wn/${d.weather[0].icon}@2x.png`,
+    updatedAt:   Date.now(),
+  };
+}
+
+/**
+ * useWeather(city)
+ * Custom hook — fetches weather on mount & whenever `city` changes,
+ * then auto-refreshes every 60 seconds.
+ */
+function useWeather(city) {
+  const [weather, setWeather] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error,   setError]   = useState(null);
+  const timerRef = useRef(null);
+
+  const load = useCallback(async (c) => {
+    if (!c) return;
+    setLoading(true); setError(null);
+    try {
+      const data = await fetchWeather(c);
+      setWeather(data);
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    load(city);
+    // Refresh every 60 seconds
+    timerRef.current = setInterval(() => load(city), 60_000);
+    return () => clearInterval(timerRef.current);
+  }, [city, load]);
+
+  return { weather, loading, error };
+}
+
+/** Maps OWM condition to a simple emoji for the topbar chip */
+function weatherEmoji(condition) {
+  const map = {
+    Clear:"☀️", Clouds:"⛅", Rain:"🌧️", Drizzle:"🌦️",
+    Thunderstorm:"⛈️", Snow:"❄️", Mist:"🌫️", Fog:"🌫️",
+    Haze:"🌁", Dust:"🌪️", Sand:"🌪️", Ash:"🌋", Squall:"💨", Tornado:"🌪️",
+  };
+  return map[condition] || "🌡️";
+}
+
+// ─── WEATHER WIDGET (topbar chip + expandable card) ───────────────────────────
+function WeatherWidget({ city, darkMode }) {
+  const { weather, loading, error } = useWeather(city);
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+  const tp  = darkMode ? "#f0f0f0" : "#1a1a2e";
+  const tm  = darkMode ? "#888"    : "#999";
+
+  useEffect(() => {
+    const fn = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    document.addEventListener("mousedown", fn);
+    return () => document.removeEventListener("mousedown", fn);
+  }, []);
+
+  // Chip shown in topbar
+  const chipBg  = darkMode ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.78)";
+  const chipBdr = darkMode ? "1px solid rgba(255,255,255,0.07)" : "1px solid rgba(0,0,0,0.05)";
+
+  return (
+    <div ref={ref} style={{ position:"relative" }}>
+      {/* ── Topbar chip ── */}
+      <div onClick={() => setOpen(o => !o)}
+        style={{ display:"flex", alignItems:"center", gap:6, padding:"5px 12px", borderRadius:20,
+          background:chipBg, border:chipBdr, cursor:"pointer", userSelect:"none",
+          boxShadow: open ? "0 0 0 2px rgba(99,102,241,0.4)" : "none", transition:"box-shadow 0.2s" }}>
+        {loading && <span style={{ fontSize:11, color:tm, fontFamily:"'Nunito',sans-serif" }}>Loading…</span>}
+        {error   && <span style={{ fontSize:11, color:"#ef4444", fontFamily:"'Nunito',sans-serif" }} title={error}>⚠️ Weather</span>}
+        {weather && !loading && (
+          <>
+            <span style={{ fontSize:17, lineHeight:1 }}>{weatherEmoji(weather.condition)}</span>
+            <span style={{ fontSize:14, fontWeight:900, color:tp, fontFamily:"'Nunito',sans-serif", letterSpacing:-0.3 }}>{weather.temp}°C</span>
+            <span style={{ fontSize:11, color:tm, fontFamily:"'Nunito',sans-serif" }}>{weather.city}, {weather.country}</span>
+          </>
+        )}
+        {!weather && !loading && !error && (
+          <span style={{ fontSize:11, color:tm, fontFamily:"'Nunito',sans-serif" }}>🌡️ Weather</span>
+        )}
+      </div>
+
+      {/* ── Expanded card ── */}
+      {open && weather && (
+        <div style={{ position:"absolute", top:46, left:0, width:260, borderRadius:18,
+          background:darkMode?"rgba(16,16,32,0.97)":"rgba(255,255,255,0.97)",
+          border:`1px solid ${darkMode?"rgba(255,255,255,0.09)":"rgba(0,0,0,0.07)"}`,
+          boxShadow:"0 20px 56px rgba(0,0,0,0.35)", zIndex:9999, overflow:"hidden",
+          animation:"dropIn 0.18s ease", backdropFilter:"blur(20px)" }}>
+
+          {/* Header */}
+          <div style={{ padding:"16px 18px 12px", background: darkMode
+            ? "linear-gradient(135deg,rgba(99,102,241,0.25),rgba(139,92,246,0.15))"
+            : "linear-gradient(135deg,rgba(99,102,241,0.12),rgba(139,92,246,0.08))",
+            borderBottom:`1px solid ${darkMode?"rgba(255,255,255,0.07)":"rgba(0,0,0,0.05)"}` }}>
+            <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+              <div>
+                <div style={{ fontWeight:900, fontSize:15, color:tp, fontFamily:"'Nunito',sans-serif" }}>
+                  {weather.city}
+                </div>
+                <div style={{ fontSize:11, color:tm, fontFamily:"'Nunito',sans-serif", marginTop:1 }}>
+                  {weather.description.charAt(0).toUpperCase()+weather.description.slice(1)}
+                </div>
+              </div>
+              <img src={weather.iconUrl} alt={weather.condition}
+                style={{ width:52, height:52, filter: darkMode ? "brightness(1.2)" : "none" }} />
+            </div>
+            <div style={{ marginTop:6 }}>
+              <span style={{ fontSize:36, fontWeight:900, color:tp, fontFamily:"'Nunito',sans-serif", letterSpacing:-1 }}>{weather.temp}°C</span>
+              <span style={{ fontSize:12, color:tm, fontFamily:"'Nunito',sans-serif", marginLeft:8 }}>Feels like {weather.feels}°C</span>
+            </div>
+          </div>
+
+          {/* Detail rows */}
+          <div style={{ padding:"12px 18px 14px" }}>
+            {[
+              ["💧","Humidity",     `${weather.humidity}%`],
+              ["💨","Wind Speed",   `${weather.wind} km/h`],
+              ["🌍","Condition",    weather.condition],
+            ].map(([icon,label,val]) => (
+              <div key={label} style={{ display:"flex", justifyContent:"space-between", alignItems:"center", padding:"6px 0", borderBottom:`1px solid ${darkMode?"rgba(255,255,255,0.05)":"rgba(0,0,0,0.04)"}` }}>
+                <span style={{ fontSize:12, color:tm, fontFamily:"'Nunito',sans-serif" }}>{icon} {label}</span>
+                <span style={{ fontSize:12, fontWeight:700, color:tp, fontFamily:"'Nunito',sans-serif" }}>{val}</span>
+              </div>
+            ))}
+            <div style={{ marginTop:8, fontSize:10, color:darkMode?"#444":"#ccc", fontFamily:"'Nunito',sans-serif", textAlign:"right" }}>
+              Updated {new Date(weather.updatedAt).toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"})} · auto-refreshes 60s
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Error card */}
+      {open && error && (
+        <div style={{ position:"absolute", top:46, left:0, width:240, borderRadius:14,
+          background:darkMode?"rgba(16,16,32,0.97)":"#fff", border:`1px solid rgba(239,68,68,0.3)`,
+          boxShadow:"0 12px 32px rgba(0,0,0,0.28)", zIndex:9999, padding:"14px 16px",
+          animation:"dropIn 0.18s ease", backdropFilter:"blur(20px)" }}>
+          <div style={{ fontSize:13, color:"#ef4444", fontFamily:"'Nunito',sans-serif", fontWeight:700, marginBottom:4 }}>⚠️ Weather Error</div>
+          <div style={{ fontSize:11, color:tm, fontFamily:"'Nunito',sans-serif", lineHeight:1.6 }}>{error}</div>
+          {error.includes("API key") && (
+            <div style={{ marginTop:8, fontSize:10, color:"#6366f1", fontFamily:"'Nunito',sans-serif" }}>
+              Get a free key at openweathermap.org and set VITE_OWM_KEY
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── CONTACT DEVELOPER MODAL ──────────────────────────────────────────────────
 function ContactDevModal({ onClose, darkMode }) {
   const bg  = darkMode ? "#16162a" : "#fff";
@@ -881,10 +1068,7 @@ export default function App() {
           <span style={{ fontSize:22 }}>📒</span>
           <span style={{ fontWeight:900, fontSize:16, color:tp, letterSpacing:-0.3 }}>VisionBook</span>
         </div>
-        <div style={{ display:"flex", alignItems:"center", gap:6, padding:"5px 12px", borderRadius:20, background:dark?"rgba(255,255,255,0.05)":"rgba(255,255,255,0.78)", border:dark?"1px solid rgba(255,255,255,0.07)":"1px solid rgba(0,0,0,0.05)" }}>
-          <span>☀️</span><span style={{ fontSize:13, fontWeight:700, color:tp }}>32°C</span>
-          <span style={{ fontSize:12, color:tm }}>{user.city||"Surat"}, {user.country||"India"}</span>
-        </div>
+        <WeatherWidget city={user.city || user.state || user.country || "Surat"} darkMode={dark} />
         <div style={{ flex:1 }} />
         <div style={{ textAlign:"right" }}>
           <div style={{ fontSize:11, color:tm, fontWeight:600 }}>{dateStr}</div>
