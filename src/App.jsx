@@ -62,6 +62,129 @@ const CITIES = {
   Kyoto:["Kyoto","Uji"],Hokkaido:["Sapporo","Hakodate"],
 };
 
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// KNOWLEDGE ARENA — CONSTANTS & ARCHITECTURE
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const ARENA_CATEGORIES = [
+  {
+    id:"study", label:"Study", emoji:"📚", color:"#6366f1",
+    glow:"rgba(99,102,241,0.4)", gradFrom:"#4f46e5", gradTo:"#7c3aed",
+    desc:"Test your academic knowledge",
+    tagline:"Math · Physics · IQ · Logic · Geometry",
+    subs:[
+      { id:"math",    label:"Mathematics",      emoji:"➗", symbol:"∑",  color:"#6366f1" },
+      { id:"physics", label:"Physics",          emoji:"⚛️", symbol:"φ",  color:"#8b5cf6" },
+      { id:"logic",   label:"Logical Thinking", emoji:"🧩", symbol:"?",  color:"#a78bfa" },
+      { id:"iq",      label:"IQ Test",          emoji:"🧠", symbol:"IQ", color:"#6366f1" },
+      { id:"geo",     label:"Geometry",         emoji:"📐", symbol:"△",  color:"#7c3aed" },
+    ],
+  },
+  {
+    id:"sports", label:"Sports", emoji:"🏆", color:"#f59e0b",
+    glow:"rgba(245,158,11,0.4)", gradFrom:"#d97706", gradTo:"#ea580c",
+    desc:"Sports trivia & championships",
+    tagline:"Cricket · Football · F1 · Basketball · Tennis",
+    subs:[
+      { id:"cricket",    label:"Cricket",    emoji:"🏏", symbol:"🏏", color:"#f59e0b" },
+      { id:"football",   label:"Football",   emoji:"⚽", symbol:"⚽", color:"#ea580c" },
+      { id:"f1",         label:"Formula 1",  emoji:"🏎️", symbol:"🏁", color:"#dc2626" },
+      { id:"basketball", label:"Basketball", emoji:"🏀", symbol:"🏀", color:"#f97316" },
+      { id:"tennis",     label:"Tennis",     emoji:"🎾", symbol:"🎾", color:"#eab308" },
+    ],
+  },
+  {
+    id:"ddcet", label:"DDCET Prep", emoji:"🎓", color:"#10b981",
+    glow:"rgba(16,185,129,0.4)", gradFrom:"#059669", gradTo:"#0891b2",
+    desc:"Official DDCET chapter-wise prep",
+    tagline:"Math · Physics · Chemistry · Computer · English",
+    subs:[
+      { id:"ddcet_math_1", label:"Determinant & Matrices",               emoji:"🔢", symbol:"det", parent:"Math",        ch:1, color:"#10b981" },
+      { id:"ddcet_math_2", label:"Trigonometry",                         emoji:"📐", symbol:"sin", parent:"Math",        ch:2, color:"#059669" },
+      { id:"ddcet_math_3", label:"Vectors",                              emoji:"➡️", symbol:"→",  parent:"Math",        ch:3, color:"#10b981" },
+      { id:"ddcet_math_4", label:"Coordinate Geometry",                  emoji:"📊", symbol:"xy",  parent:"Math",        ch:4, color:"#059669" },
+      { id:"ddcet_math_5", label:"Limit & Function",                     emoji:"∞",  symbol:"lim", parent:"Math",        ch:5, color:"#10b981" },
+      { id:"ddcet_math_6", label:"Integration",                          emoji:"∫",  symbol:"∫",   parent:"Math",        ch:6, color:"#059669" },
+      { id:"ddcet_math_7", label:"Differentiation & Applications",       emoji:"𝑑",  symbol:"dy",  parent:"Math",        ch:7, color:"#10b981" },
+      { id:"ddcet_math_8", label:"Logarithm",                            emoji:"🔣", symbol:"log", parent:"Math",        ch:8, color:"#059669" },
+      { id:"ddcet_math_9", label:"Statistics",                           emoji:"📈", symbol:"σ",   parent:"Math",        ch:9, color:"#10b981" },
+      { id:"ddcet_phy_1",  label:"Units & Measurement",                  emoji:"📏", symbol:"m",   parent:"Physics",     ch:1, color:"#0891b2" },
+      { id:"ddcet_phy_2",  label:"Classical Mechanics",                  emoji:"⚙️", symbol:"F",   parent:"Physics",     ch:2, color:"#0e7490" },
+      { id:"ddcet_phy_3",  label:"Electric Current",                     emoji:"⚡", symbol:"I",   parent:"Physics",     ch:3, color:"#0891b2" },
+      { id:"ddcet_phy_4",  label:"Heat & Thermometry",                   emoji:"🌡️", symbol:"T",  parent:"Physics",     ch:4, color:"#0e7490" },
+      { id:"ddcet_phy_5",  label:"Wave Motion, Optics & Acoustics",      emoji:"🌊", symbol:"λ",   parent:"Physics",     ch:5, color:"#0891b2" },
+      { id:"ddcet_chem_1", label:"Chemical Reactions & Equations",       emoji:"🧪", symbol:"→",   parent:"Chemistry",   ch:1, color:"#7c3aed" },
+      { id:"ddcet_chem_2", label:"Acids, Bases & Salts",                 emoji:"⚗️", symbol:"pH",  parent:"Chemistry",   ch:2, color:"#6d28d9" },
+      { id:"ddcet_chem_3", label:"Metals & Non-metals",                  emoji:"🔩", symbol:"Fe",  parent:"Chemistry",   ch:3, color:"#7c3aed" },
+      { id:"ddcet_env_1",  label:"Ecosystem & Pollution Types",          emoji:"🌿", symbol:"🌱",  parent:"Environment", ch:1, color:"#15803d" },
+      { id:"ddcet_env_2",  label:"Climate Change",                       emoji:"🌍", symbol:"CO₂", parent:"Environment", ch:2, color:"#166534" },
+      { id:"ddcet_env_3",  label:"Hydro / Solar / Wind / Bio-mass Energy",emoji:"☀️",symbol:"W",   parent:"Environment", ch:3, color:"#15803d" },
+      { id:"ddcet_comp_1", label:"Computer Generations (1–5)",           emoji:"💻", symbol:"Gen", parent:"Computer",    ch:1, color:"#1d4ed8" },
+      { id:"ddcet_comp_2", label:"HTML-5",                               emoji:"🌐", symbol:"</>", parent:"Computer",    ch:2, color:"#1e40af" },
+      { id:"ddcet_comp_3", label:"MS Office Suite",                      emoji:"📝", symbol:"📋",  parent:"Computer",    ch:3, color:"#1d4ed8" },
+      { id:"ddcet_eng_1",  label:"Letter Writing",                       emoji:"✉️", symbol:"Dear",parent:"English",     ch:1, color:"#be185d" },
+      { id:"ddcet_eng_2",  label:"Passage",                              emoji:"📖", symbol:"¶",   parent:"English",     ch:2, color:"#9d174d" },
+      { id:"ddcet_eng_3",  label:"Theory of Communication",              emoji:"🗣️", symbol:"📡", parent:"English",     ch:3, color:"#be185d" },
+      { id:"ddcet_eng_4",  label:"Grammar",                              emoji:"📝", symbol:"Aa",  parent:"English",     ch:4, color:"#9d174d" },
+      { id:"ddcet_eng_5",  label:"Correction of Words",                  emoji:"✏️", symbol:"✓",  parent:"English",     ch:5, color:"#be185d" },
+    ],
+  },
+];
+
+const DIFFICULTY_CONFIG = {
+  easy:     { label:"Easy",     emoji:"🟢", points:5,  color:"#22c55e", desc:"Beginner friendly" },
+  moderate: { label:"Moderate", emoji:"🟡", points:10, color:"#f59e0b", desc:"Intermediate level" },
+  hard:     { label:"Hard",     emoji:"🔴", points:15, color:"#ef4444", desc:"Expert challenge"   },
+};
+
+const ALL_ACHIEVEMENTS = [
+  { id:"first_quiz",    label:"First Step",       desc:"Complete your first quiz",              emoji:"🎯" },
+  { id:"streak_5",      label:"On Fire",           desc:"Complete 5 quizzes",                    emoji:"🔥" },
+  { id:"streak_10",     label:"Unstoppable",       desc:"Complete 10 quizzes",                   emoji:"💪" },
+  { id:"perfect_score", label:"Perfect Score",     desc:"Get 100% accuracy in any quiz",         emoji:"⭐" },
+  { id:"speed_thinker", label:"Speed Thinker",     desc:"Finish a quiz in under 60 seconds",     emoji:"⚡" },
+  { id:"study_master",  label:"Study Master",      desc:"Play 5 Study quizzes",                  emoji:"📚" },
+  { id:"sports_champ",  label:"Sports Champion",   desc:"Play 5 Sports quizzes",                 emoji:"🏆" },
+  { id:"ddcet_warrior", label:"DDCET Warrior",     desc:"Play 5 DDCET chapter quizzes",          emoji:"🎓" },
+  { id:"accuracy_80",   label:"Sharp Mind",        desc:"Achieve 80%+ accuracy in a quiz",       emoji:"🎯" },
+  { id:"high_scorer",   label:"High Scorer",       desc:"Earn 100+ points in a single quiz",     emoji:"💎" },
+];
+
+// Question bank — fill each array with JSON questions later
+// Format: { id, question, options:[4], answer, difficulty }
+const QUESTION_BANKS = {
+  math:[], physics:[], logic:[], iq:[], geo:[],
+  cricket:[], football:[], f1:[], basketball:[], tennis:[],
+  ddcet_math_1:[], ddcet_math_2:[], ddcet_math_3:[], ddcet_math_4:[], ddcet_math_5:[],
+  ddcet_math_6:[], ddcet_math_7:[], ddcet_math_8:[], ddcet_math_9:[],
+  ddcet_phy_1:[], ddcet_phy_2:[], ddcet_phy_3:[], ddcet_phy_4:[], ddcet_phy_5:[],
+  ddcet_chem_1:[], ddcet_chem_2:[], ddcet_chem_3:[],
+  ddcet_env_1:[], ddcet_env_2:[], ddcet_env_3:[],
+  ddcet_comp_1:[], ddcet_comp_2:[], ddcet_comp_3:[],
+  ddcet_eng_1:[], ddcet_eng_2:[], ddcet_eng_3:[], ddcet_eng_4:[], ddcet_eng_5:[],
+};
+
+function pickQuestions(bankId, difficulty) {
+  const pool = (QUESTION_BANKS[bankId] || []).filter(q => q.difficulty === difficulty);
+  return [...pool].sort(() => Math.random() - 0.5).slice(0, 20);
+}
+
+function checkAchievements(stats, existing = []) {
+  const newOnes = [];
+  if (stats.totalSessions >= 1  && !existing.includes("first_quiz"))    newOnes.push("first_quiz");
+  if (stats.totalSessions >= 5  && !existing.includes("streak_5"))      newOnes.push("streak_5");
+  if (stats.totalSessions >= 10 && !existing.includes("streak_10"))     newOnes.push("streak_10");
+  if (stats.bestAccuracy >= 100 && !existing.includes("perfect_score")) newOnes.push("perfect_score");
+  if (stats.fastestQuiz   <= 60 && !existing.includes("speed_thinker")) newOnes.push("speed_thinker");
+  if ((stats.categoryCounts?.study||0)  >= 5 && !existing.includes("study_master"))  newOnes.push("study_master");
+  if ((stats.categoryCounts?.sports||0) >= 5 && !existing.includes("sports_champ"))  newOnes.push("sports_champ");
+  if ((stats.categoryCounts?.ddcet||0)  >= 5 && !existing.includes("ddcet_warrior")) newOnes.push("ddcet_warrior");
+  if (stats.bestAccuracy  >= 80 && !existing.includes("accuracy_80"))   newOnes.push("accuracy_80");
+  if (stats.highestScore  >= 100 && !existing.includes("high_scorer"))  newOnes.push("high_scorer");
+  return newOnes;
+}
+
 // ─── UTILITIES ────────────────────────────────────────────────────────────────
 const uid         = () => Math.random().toString(36).slice(2, 9);
 const pad         = (n) => String(n).padStart(2, "0");
@@ -893,6 +1016,1190 @@ function SettingsPanel({ settings, onSettings, darkMode, user, onUpdateUser }) {
   );
 }
 
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// KNOWLEDGE ARENA — COMPLETELY REDESIGNED UI (v2)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+// ─── Shared helpers ───────────────────────────────────────────────────────────
+function ArenaBtn({ onClick, children, color="#6366f1", disabled=false, outline=false, small=false, full=false }) {
+  const [hov, setHov] = useState(false);
+  const bg = outline
+    ? hov ? `${color}18` : "transparent"
+    : hov ? color : color;
+  return (
+    <button onClick={disabled ? undefined : onClick} disabled={disabled}
+      onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
+      style={{ display:"inline-flex", alignItems:"center", justifyContent:"center", gap:7,
+        padding:small?"7px 16px":"11px 26px", borderRadius:12,
+        border:`2px solid ${color}`, width:full?"100%":undefined,
+        background:disabled?"rgba(255,255,255,0.05)":outline?(hov?`${color}18`:"transparent"):color,
+        color:disabled?"#555":outline?(hov?color:color):"#fff",
+        fontSize:small?11:13, fontWeight:800, fontFamily:"'Nunito',sans-serif",
+        cursor:disabled?"not-allowed":"pointer", transition:"all 0.18s",
+        boxShadow:disabled||outline?"none":`0 4px 18px ${color}55`,
+        transform:(!disabled&&hov&&!outline)?"translateY(-1px)":"translateY(0)",
+        opacity:disabled?0.4:1 }}>
+      {children}
+    </button>
+  );
+}
+
+function ArenaProgress({ value, max=100, color="#6366f1", label="", height=10 }) {
+  const pct = Math.min(100, Math.round((value/max)*100));
+  return (
+    <div>
+      {label && (
+        <div style={{ display:"flex", justifyContent:"space-between", marginBottom:5 }}>
+          <span style={{ fontSize:11, color:"#888", fontFamily:"'Nunito',sans-serif" }}>{label}</span>
+          <span style={{ fontSize:11, fontWeight:800, color, fontFamily:"'Nunito',sans-serif" }}>{pct}%</span>
+        </div>
+      )}
+      <div style={{ height, borderRadius:99, background:"rgba(255,255,255,0.06)", overflow:"hidden" }}>
+        <div style={{ height:"100%", width:`${pct}%`, borderRadius:99,
+          background:`linear-gradient(90deg,${color},${color}cc)`,
+          transition:"width 0.6s cubic-bezier(0.34,1.56,0.64,1)",
+          boxShadow:`0 0 12px ${color}88` }} />
+      </div>
+    </div>
+  );
+}
+
+// ─── Arena Home ───────────────────────────────────────────────────────────────
+function ArenaHome({ darkMode, onSelect, userEmail }) {
+  const dark  = darkMode;
+  const tp    = dark?"#f0f0f0":"#1a1a2e";
+  const tm    = dark?"#888":"#999";
+  const stats = LS.get(`visionbook_arena_stats_${userEmail}`, {
+    totalSessions:0, totalPoints:0, highestScore:0, bestAccuracy:0 });
+  const achievements = LS.get(`visionbook_arena_achievements_${userEmail}`, []);
+
+  return (
+    <div style={{ padding:"32px 32px 48px", minHeight:"100%" }}>
+      {/* ── Hero Header ── */}
+      <div style={{ marginBottom:36, position:"relative" }}>
+        <div style={{ position:"absolute", top:-20, right:0, width:240, height:240, borderRadius:"50%",
+          background:"radial-gradient(circle,rgba(99,102,241,0.18) 0%,transparent 70%)", pointerEvents:"none" }} />
+        <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between", flexWrap:"wrap", gap:20 }}>
+          <div>
+            <div style={{ fontSize:11, fontWeight:800, letterSpacing:3, textTransform:"uppercase",
+              color:"#6366f1", fontFamily:"'Nunito',sans-serif", marginBottom:8 }}>
+              ⚡ KNOWLEDGE ARENA
+            </div>
+            <h1 style={{ fontSize:34, fontWeight:900, color:tp, fontFamily:"'Nunito',sans-serif",
+              margin:"0 0 8px", letterSpacing:-1, lineHeight:1.1 }}>
+              Test Your <span style={{ background:"linear-gradient(135deg,#6366f1,#a78bfa)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent" }}>Limits</span>
+            </h1>
+            <p style={{ fontSize:13.5, color:tm, fontFamily:"'Nunito',sans-serif", margin:0, lineHeight:1.6, maxWidth:460 }}>
+              Challenge yourself across Study, Sports & DDCET. Track your performance, climb leaderboards, earn achievements.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Quick Stats Strip ── */}
+      <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:12, marginBottom:32 }}>
+        {[
+          { emoji:"🎮", label:"Sessions",    val:stats.totalSessions||0,  color:"#6366f1" },
+          { emoji:"💎", label:"Points",       val:stats.totalPoints||0,    color:"#f59e0b" },
+          { emoji:"⭐", label:"Best Score",   val:stats.highestScore||0,   color:"#22c55e" },
+          { emoji:"🏆", label:"Achievements", val:achievements.length,     color:"#a78bfa" },
+        ].map(s => (
+          <div key={s.label}
+            style={{ padding:"16px 14px", borderRadius:16,
+              background:dark?"rgba(255,255,255,0.03)":"rgba(255,255,255,0.8)",
+              border:dark?"1px solid rgba(255,255,255,0.07)":"1px solid rgba(0,0,0,0.07)",
+              textAlign:"center", boxShadow:"0 2px 12px rgba(0,0,0,0.06)" }}>
+            <div style={{ fontSize:22, marginBottom:4 }}>{s.emoji}</div>
+            <div style={{ fontSize:22, fontWeight:900, color:s.color, fontFamily:"'Nunito',sans-serif", letterSpacing:-0.5 }}>{s.val}</div>
+            <div style={{ fontSize:10, color:tm, fontFamily:"'Nunito',sans-serif", marginTop:2 }}>{s.label}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* ── Category Cards ── */}
+      <div style={{ fontSize:11, fontWeight:800, letterSpacing:2, textTransform:"uppercase",
+        color:tm, fontFamily:"'Nunito',sans-serif", marginBottom:14 }}>SELECT CATEGORY</div>
+      <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(280px,1fr))", gap:20, marginBottom:32 }}>
+        {ARENA_CATEGORIES.map((cat,i) => (
+          <div key={cat.id} onClick={() => onSelect(cat.id)}
+            style={{ borderRadius:22, padding:"28px 26px", cursor:"pointer", position:"relative",
+              overflow:"hidden", background:dark?"rgba(255,255,255,0.03)":"rgba(255,255,255,0.78)",
+              border:`1.5px solid ${cat.color}33`,
+              boxShadow:`0 4px 24px ${cat.glow}22`,
+              transition:"all 0.28s cubic-bezier(0.34,1.56,0.64,1)",
+              animation:`dropIn 0.3s ease ${i*0.08}s both` }}
+            onMouseEnter={e => { e.currentTarget.style.transform="translateY(-6px) scale(1.01)"; e.currentTarget.style.boxShadow=`0 20px 56px ${cat.glow}`; e.currentTarget.style.borderColor=cat.color+"aa"; }}
+            onMouseLeave={e => { e.currentTarget.style.transform=""; e.currentTarget.style.boxShadow=`0 4px 24px ${cat.glow}22`; e.currentTarget.style.borderColor=cat.color+"33"; }}>
+            {/* Gradient blob */}
+            <div style={{ position:"absolute", top:-50, right:-50, width:160, height:160, borderRadius:"50%",
+              background:`radial-gradient(circle,${cat.glow} 0%,transparent 70%)`, pointerEvents:"none" }} />
+            {/* Top accent bar */}
+            <div style={{ position:"absolute", top:0, left:0, right:0, height:3,
+              background:`linear-gradient(90deg,${cat.gradFrom},${cat.gradTo})`, borderRadius:"22px 22px 0 0" }} />
+            <div style={{ position:"relative" }}>
+              <div style={{ fontSize:46, marginBottom:14,
+                filter:`drop-shadow(0 6px 16px ${cat.glow})`,
+                animation:"float 3s ease-in-out infinite" }}>{cat.emoji}</div>
+              <h2 style={{ fontSize:21, fontWeight:900, color:tp, fontFamily:"'Nunito',sans-serif",
+                margin:"0 0 5px", letterSpacing:-0.3 }}>{cat.label}</h2>
+              <p style={{ fontSize:12, color:tm, fontFamily:"'Nunito',sans-serif", margin:"0 0 18px", lineHeight:1.5 }}>{cat.tagline}</p>
+              <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+                <div style={{ display:"flex", alignItems:"center", gap:6 }}>
+                  <div style={{ width:6, height:6, borderRadius:"50%", background:cat.color }} />
+                  <span style={{ fontSize:11, color:cat.color, fontWeight:800, fontFamily:"'Nunito',sans-serif" }}>{cat.subs.length} topics</span>
+                </div>
+                <div style={{ display:"flex", alignItems:"center", gap:6, padding:"7px 18px", borderRadius:99,
+                  background:`linear-gradient(135deg,${cat.gradFrom},${cat.gradTo})`,
+                  color:"#fff", fontSize:12, fontWeight:800, fontFamily:"'Nunito',sans-serif",
+                  boxShadow:`0 4px 16px ${cat.glow}` }}>
+                  Play <span style={{ fontSize:14 }}>→</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* ── Quick Action Row ── */}
+      <div style={{ fontSize:11, fontWeight:800, letterSpacing:2, textTransform:"uppercase",
+        color:tm, fontFamily:"'Nunito',sans-serif", marginBottom:14 }}>QUICK ACCESS</div>
+      <div style={{ display:"flex", gap:12, flexWrap:"wrap" }}>
+        {[
+          { label:"🏅 Leaderboard", action:"leaderboard", color:"#f59e0b" },
+          { label:"🏆 Achievements", action:"achievements", color:"#a78bfa" },
+          { label:"📊 Analytics",   action:"analytics",   color:"#22c55e" },
+          { label:"👤 Arena Profile", action:"profile",   color:"#6366f1" },
+        ].map(b => (
+          <button key={b.action} onClick={() => onSelect(b.action)}
+            style={{ padding:"12px 22px", borderRadius:14,
+              border:`1.5px solid ${b.color}33`,
+              background:dark?`${b.color}11`:`${b.color}0a`,
+              color:b.color, fontSize:12.5, fontWeight:800,
+              fontFamily:"'Nunito',sans-serif", cursor:"pointer", transition:"all 0.18s" }}
+            onMouseEnter={e => { e.currentTarget.style.background=`${b.color}22`; e.currentTarget.style.borderColor=`${b.color}88`; e.currentTarget.style.transform="translateY(-2px)"; }}
+            onMouseLeave={e => { e.currentTarget.style.background=dark?`${b.color}11`:`${b.color}0a`; e.currentTarget.style.borderColor=`${b.color}33`; e.currentTarget.style.transform=""; }}>
+            {b.label}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ─── Category Page (sub-section grid) ────────────────────────────────────────
+function ArenaCategoryPage({ catId, darkMode, onSelectSub, onBack }) {
+  const cat  = ARENA_CATEGORIES.find(c => c.id === catId);
+  const dark = darkMode;
+  const tp   = dark?"#f0f0f0":"#1a1a2e";
+  const tm   = dark?"#888":"#999";
+  if (!cat) return null;
+
+  const isDdcet = catId === "ddcet";
+  const grouped = {};
+  if (isDdcet) {
+    cat.subs.forEach(s => { const p=s.parent||"Other"; if(!grouped[p]) grouped[p]=[]; grouped[p].push(s); });
+  }
+
+  return (
+    <div style={{ padding:"32px 32px 48px", minHeight:"100%" }}>
+      {/* Header */}
+      <div style={{ display:"flex", alignItems:"center", gap:16, marginBottom:32 }}>
+        <button onClick={onBack}
+          style={{ width:38, height:38, borderRadius:12, border:`1.5px solid ${cat.color}44`,
+            background:"transparent", color:cat.color, fontSize:16, cursor:"pointer",
+            display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>←</button>
+        <div style={{ flex:1 }}>
+          <div style={{ fontSize:10, fontWeight:800, letterSpacing:2.5, textTransform:"uppercase",
+            color:cat.color, fontFamily:"'Nunito',sans-serif", marginBottom:4 }}>CATEGORY</div>
+          <h2 style={{ fontSize:26, fontWeight:900, color:tp, fontFamily:"'Nunito',sans-serif",
+            margin:0, display:"flex", alignItems:"center", gap:10 }}>
+            <span style={{ filter:`drop-shadow(0 4px 12px ${cat.glow})` }}>{cat.emoji}</span>
+            {cat.label}
+          </h2>
+        </div>
+        <div style={{ padding:"8px 18px", borderRadius:99,
+          background:`linear-gradient(135deg,${cat.gradFrom},${cat.gradTo})`,
+          color:"#fff", fontSize:11, fontWeight:800, fontFamily:"'Nunito',sans-serif",
+          boxShadow:`0 4px 16px ${cat.glow}` }}>
+          {cat.subs.length} Topics
+        </div>
+      </div>
+
+      {!isDdcet && (
+        <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(190px,1fr))", gap:16 }}>
+          {cat.subs.map((sub,i) => (
+            <SubCard key={sub.id} sub={sub} catColor={cat.color} catGlow={cat.glow} darkMode={dark}
+              onClick={() => onSelectSub(sub.id)} animDelay={i*0.05} />
+          ))}
+        </div>
+      )}
+
+      {isDdcet && Object.entries(grouped).map(([parent, subs]) => {
+        const subjectColors = { Math:"#10b981",Physics:"#0891b2",Chemistry:"#7c3aed",Environment:"#15803d",Computer:"#1d4ed8",English:"#be185d" };
+        const sc = subjectColors[parent] || cat.color;
+        return (
+          <div key={parent} style={{ marginBottom:32 }}>
+            <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:14 }}>
+              <div style={{ height:2, flex:1, background:`linear-gradient(90deg,${sc},transparent)`, borderRadius:99 }} />
+              <div style={{ fontSize:11, fontWeight:900, color:sc, fontFamily:"'Nunito',sans-serif",
+                letterSpacing:2, textTransform:"uppercase", padding:"5px 14px", borderRadius:99,
+                border:`1px solid ${sc}44`, background:`${sc}11` }}>{parent}</div>
+              <div style={{ height:2, flex:1, background:`linear-gradient(270deg,${sc},transparent)`, borderRadius:99 }} />
+            </div>
+            <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(210px,1fr))", gap:12 }}>
+              {subs.map((sub,i) => (
+                <SubCard key={sub.id} sub={sub} catColor={sc} catGlow={`${sc}44`} darkMode={dark}
+                  onClick={() => onSelectSub(sub.id)} animDelay={i*0.04} small />
+              ))}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function SubCard({ sub, catColor, catGlow, darkMode, onClick, small=false, animDelay=0 }) {
+  const dark = darkMode;
+  const tp = dark?"#f0f0f0":"#1a1a2e";
+  const [hov, setHov] = useState(false);
+  return (
+    <div onClick={onClick}
+      onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
+      style={{ borderRadius:16, padding:small?"14px 16px":"22px 20px", cursor:"pointer",
+        position:"relative", overflow:"hidden",
+        background:dark?(hov?"rgba(255,255,255,0.06)":"rgba(255,255,255,0.03)"):(hov?"rgba(255,255,255,0.95)":"rgba(255,255,255,0.75)"),
+        border:`1.5px solid ${hov?catColor+"88":catColor+"33"}`,
+        transform:hov?"translateY(-3px) scale(1.01)":"translateY(0) scale(1)",
+        boxShadow:hov?`0 14px 40px ${catGlow}`:"none",
+        transition:"all 0.22s cubic-bezier(0.34,1.56,0.64,1)",
+        animation:`dropIn 0.25s ease ${animDelay}s both` }}>
+      {/* accent top bar */}
+      <div style={{ position:"absolute", top:0, left:0, right:0, height:2.5,
+        background:hov?`linear-gradient(90deg,${catColor},${catColor}88)`:`transparent`,
+        transition:"background 0.2s", borderRadius:"16px 16px 0 0" }} />
+      {/* glow blob */}
+      <div style={{ position:"absolute", top:-15, right:-15, width:50, height:50,
+        borderRadius:"50%", background:catGlow, filter:"blur(20px)",
+        opacity:hov?1:0, transition:"opacity 0.2s", pointerEvents:"none" }} />
+      {small ? (
+        <div style={{ display:"flex", alignItems:"center", gap:12, position:"relative" }}>
+          <div style={{ width:40, height:40, borderRadius:12,
+            background:hov?`linear-gradient(135deg,${catColor}33,${catColor}11)`:`${catColor}18`,
+            display:"flex", alignItems:"center", justifyContent:"center",
+            fontSize:20, flexShrink:0, transition:"all 0.2s",
+            boxShadow:hov?`0 4px 14px ${catGlow}`:"none" }}>{sub.emoji}</div>
+          <div>
+            <div style={{ fontSize:12, fontWeight:800, color:tp, fontFamily:"'Nunito',sans-serif", lineHeight:1.3 }}>{sub.label}</div>
+            {sub.ch && <div style={{ fontSize:10, color:catColor, fontFamily:"'Nunito',sans-serif", fontWeight:700, marginTop:2 }}>Ch. {sub.ch}</div>}
+          </div>
+          {hov && <div style={{ marginLeft:"auto", fontSize:12, color:catColor }}>→</div>}
+        </div>
+      ) : (
+        <div style={{ position:"relative" }}>
+          <div style={{ fontSize:36, marginBottom:12,
+            filter:hov?`drop-shadow(0 4px 12px ${catGlow})`:"none",
+            transition:"filter 0.2s", display:"inline-block",
+            transform:hov?"scale(1.1)":"scale(1)" }}>{sub.emoji}</div>
+          <div style={{ fontSize:14, fontWeight:900, color:tp, fontFamily:"'Nunito',sans-serif", marginBottom:6 }}>{sub.label}</div>
+          <div style={{ display:"flex", alignItems:"center", gap:5 }}>
+            <div style={{ width:5, height:5, borderRadius:"50%", background:catColor }} />
+            <span style={{ fontSize:11, color:catColor, fontWeight:800, fontFamily:"'Nunito',sans-serif" }}>
+              {hov?"Let's Play! →":"Start Quiz"}
+            </span>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Difficulty Selection Screen ──────────────────────────────────────────────
+function ArenaDifficultyScreen({ subId, darkMode, onStart, onBack }) {
+  const allSubs = ARENA_CATEGORIES.flatMap(c => c.subs);
+  const sub   = allSubs.find(s => s.id === subId);
+  const dark  = darkMode;
+  const tp    = dark?"#f0f0f0":"#1a1a2e";
+  const [sel, setSel] = useState(null);
+
+  const counts = {};
+  Object.keys(DIFFICULTY_CONFIG).forEach(d => {
+    counts[d] = (QUESTION_BANKS[subId]||[]).filter(q => q.difficulty===d).length;
+  });
+
+  const totalQ = Object.values(counts).reduce((a,b)=>a+b,0);
+
+  return (
+    <div style={{ padding:"40px 32px", minHeight:"100%", display:"flex", flexDirection:"column", alignItems:"center" }}>
+      <div style={{ width:"100%", maxWidth:460 }}>
+        <button onClick={onBack}
+          style={{ padding:"8px 18px", borderRadius:10, border:"1px solid rgba(255,255,255,0.12)",
+            background:"transparent", color:"#888", fontSize:12, fontWeight:800,
+            fontFamily:"'Nunito',sans-serif", cursor:"pointer", marginBottom:36 }}>← Back</button>
+
+        {/* Sub info card */}
+        <div style={{ textAlign:"center", marginBottom:40, padding:"32px",
+          borderRadius:22, border:"1px solid rgba(255,255,255,0.08)",
+          background:dark?"rgba(255,255,255,0.03)":"rgba(255,255,255,0.7)" }}>
+          <div style={{ fontSize:56, marginBottom:12,
+            filter:"drop-shadow(0 8px 20px rgba(99,102,241,0.4))",
+            animation:"float 3s ease-in-out infinite" }}>{sub?.emoji||"❓"}</div>
+          <h2 style={{ fontSize:24, fontWeight:900, color:tp, fontFamily:"'Nunito',sans-serif",
+            margin:"0 0 6px" }}>{sub?.label}</h2>
+          <p style={{ fontSize:12.5, color:"#888", fontFamily:"'Nunito',sans-serif", margin:0 }}>
+            {totalQ} questions available • 20 will be selected randomly
+          </p>
+        </div>
+
+        {/* Difficulty cards */}
+        <div style={{ fontSize:11, fontWeight:800, letterSpacing:2, textTransform:"uppercase",
+          color:"#888", fontFamily:"'Nunito',sans-serif", marginBottom:14, textAlign:"center" }}>
+          CHOOSE DIFFICULTY
+        </div>
+        <div style={{ display:"flex", flexDirection:"column", gap:12, marginBottom:32 }}>
+          {Object.entries(DIFFICULTY_CONFIG).map(([key, cfg]) => (
+            <div key={key} onClick={() => setSel(key)}
+              style={{ padding:"20px 22px", borderRadius:18, cursor:"pointer",
+                border:`2px solid ${sel===key?cfg.color:dark?"rgba(255,255,255,0.08)":"rgba(0,0,0,0.08)"}`,
+                background:sel===key?`${cfg.color}15`:dark?"rgba(255,255,255,0.03)":"rgba(255,255,255,0.65)",
+                transition:"all 0.2s", transform:sel===key?"scale(1.01)":"scale(1)",
+                boxShadow:sel===key?`0 8px 32px ${cfg.color}44`:"none",
+                position:"relative", overflow:"hidden" }}>
+              {sel===key && <div style={{ position:"absolute", top:0, left:0, right:0, height:3,
+                background:`linear-gradient(90deg,${cfg.color},${cfg.color}88)` }} />}
+              <div style={{ display:"flex", alignItems:"center", gap:16 }}>
+                <div style={{ width:48, height:48, borderRadius:14,
+                  background:sel===key?`${cfg.color}22`:"rgba(255,255,255,0.05)",
+                  display:"flex", alignItems:"center", justifyContent:"center", fontSize:26, flexShrink:0,
+                  boxShadow:sel===key?`0 4px 16px ${cfg.color}44`:"none" }}>{cfg.emoji}</div>
+                <div style={{ flex:1 }}>
+                  <div style={{ fontSize:15, fontWeight:900, color:sel===key?cfg.color:tp,
+                    fontFamily:"'Nunito',sans-serif", marginBottom:3 }}>{cfg.label}</div>
+                  <div style={{ fontSize:12, color:"#888", fontFamily:"'Nunito',sans-serif" }}>
+                    {cfg.desc} · <span style={{ color:cfg.color, fontWeight:700 }}>{cfg.points} pts/question</span>
+                  </div>
+                </div>
+                <div style={{ textAlign:"right" }}>
+                  <div style={{ fontSize:18, fontWeight:900, color:counts[key]>0?cfg.color:"#444",
+                    fontFamily:"'Nunito',sans-serif" }}>{counts[key]}</div>
+                  <div style={{ fontSize:10, color:"#666", fontFamily:"'Nunito',sans-serif" }}>Qs</div>
+                </div>
+              </div>
+              {sel===key && counts[key]===0 && (
+                <div style={{ marginTop:10, padding:"8px 12px", borderRadius:10,
+                  background:"rgba(245,158,11,0.1)", border:"1px solid rgba(245,158,11,0.3)",
+                  fontSize:11, color:"#f59e0b", fontFamily:"'Nunito',sans-serif" }}>
+                  ⚠️ No questions yet — add JSON to QUESTION_BANKS["{key}"]
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* Start button */}
+        <ArenaBtn onClick={() => sel && onStart(subId, sel)}
+          disabled={!sel} color={sel?DIFFICULTY_CONFIG[sel]?.color:"#555"} full>
+          {sel ? `🚀 Start ${DIFFICULTY_CONFIG[sel].label} Quiz  (20 Qs · ${DIFFICULTY_CONFIG[sel].points} pts each)` : "← Select a difficulty above"}
+        </ArenaBtn>
+      </div>
+    </div>
+  );
+}
+
+// ─── Quiz Engine ──────────────────────────────────────────────────────────────
+function ArenaQuizEngine({ subId, difficulty, userEmail, darkMode, onComplete, onBack }) {
+  const questions = useState(() => pickQuestions(subId, difficulty))[0];
+  const allSubs   = ARENA_CATEGORIES.flatMap(c => c.subs);
+  const sub       = allSubs.find(s => s.id === subId);
+  const dark      = darkMode;
+  const tp        = dark?"#f0f0f0":"#1a1a2e";
+  const cfg       = DIFFICULTY_CONFIG[difficulty];
+
+  const [qIdx,      setQIdx]      = useState(0);
+  const [selected,  setSelected]  = useState(null);
+  const [confirmed, setConfirmed] = useState(false);
+  const [answers,   setAnswers]   = useState([]);
+  const [elapsed,   setElapsed]   = useState(0);
+  const timerRef = useRef(null);
+
+  useEffect(() => {
+    timerRef.current = setInterval(() => setElapsed(e => e+1), 1000);
+    return () => clearInterval(timerRef.current);
+  }, []);
+
+  if (questions.length === 0) return (
+    <div style={{ padding:48, textAlign:"center", display:"flex", flexDirection:"column",
+      alignItems:"center", justifyContent:"center", minHeight:"100%" }}>
+      <div style={{ fontSize:64, marginBottom:20 }}>📭</div>
+      <h2 style={{ fontSize:22, fontWeight:900, color:tp, fontFamily:"'Nunito',sans-serif", marginBottom:8 }}>No Questions Yet</h2>
+      <p style={{ fontSize:13, color:"#888", fontFamily:"'Nunito',sans-serif", marginBottom:28, maxWidth:360, lineHeight:1.7 }}>
+        This quiz is ready and waiting! Add questions to <code style={{ background:"rgba(99,102,241,0.15)", padding:"2px 8px", borderRadius:6, color:"#a78bfa" }}>QUESTION_BANKS["{subId}"]</code> in the code.
+      </p>
+      <ArenaBtn onClick={onBack} outline color="#6366f1">← Go Back</ArenaBtn>
+    </div>
+  );
+
+  const q        = questions[qIdx];
+  const progress = ((qIdx) / questions.length) * 100;
+  const labels   = ["A","B","C","D"];
+  const optColors = { selected:"#6366f1", correct:"#22c55e", wrong:"#ef4444", default: dark?"rgba(255,255,255,0.04)":"rgba(255,255,255,0.75)" };
+
+  const confirm = () => {
+    if (!selected) return;
+    setAnswers(p => [...p, { q:q.id, selected, correct:selected===q.answer }]);
+    setConfirmed(true);
+  };
+
+  const next = () => {
+    if (qIdx + 1 >= questions.length) {
+      clearInterval(timerRef.current);
+      const finalAnswers = [...answers, { q:q.id, selected, correct:selected===q.answer }];
+      const correct = finalAnswers.filter(a=>a.correct).length;
+      onComplete({ subId, difficulty, questions, answers:finalAnswers, elapsed, correct });
+    } else {
+      setQIdx(p=>p+1); setSelected(null); setConfirmed(false);
+    }
+  };
+
+  const getOptStyle = (opt) => {
+    if (!confirmed) {
+      const isSelected = selected===opt;
+      return {
+        border:`2px solid ${isSelected?cfg.color:dark?"rgba(255,255,255,0.1)":"rgba(0,0,0,0.09)"}`,
+        background:isSelected?`${cfg.color}18`:dark?"rgba(255,255,255,0.03)":"rgba(255,255,255,0.75)",
+        transform:isSelected?"scale(1.01)":"scale(1)",
+        boxShadow:isSelected?`0 6px 24px ${cfg.color}44`:"none",
+      };
+    }
+    if (opt===q.answer)   return { border:"2px solid #22c55e", background:"rgba(34,197,94,0.12)", boxShadow:"0 4px 20px rgba(34,197,94,0.3)" };
+    if (opt===selected)   return { border:"2px solid #ef4444", background:"rgba(239,68,68,0.12)", boxShadow:"0 4px 20px rgba(239,68,68,0.2)" };
+    return { border:`2px solid ${dark?"rgba(255,255,255,0.05)":"rgba(0,0,0,0.05)"}`, background:dark?"rgba(255,255,255,0.02)":"rgba(255,255,255,0.5)", opacity:0.6 };
+  };
+
+  return (
+    <div style={{ padding:"24px 28px", minHeight:"100%", maxWidth:620, margin:"0 auto" }}>
+      {/* Quiz header */}
+      <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:18 }}>
+        <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+          <span style={{ fontSize:18 }}>{sub?.emoji}</span>
+          <div>
+            <div style={{ fontSize:12, fontWeight:800, color:tp, fontFamily:"'Nunito',sans-serif" }}>{sub?.label}</div>
+            <div style={{ fontSize:10, color:cfg.color, fontFamily:"'Nunito',sans-serif", fontWeight:700 }}>{cfg.label}</div>
+          </div>
+        </div>
+        <div style={{ display:"flex", alignItems:"center", gap:14 }}>
+          {/* Timer */}
+          <div style={{ display:"flex", alignItems:"center", gap:5, padding:"6px 14px", borderRadius:99,
+            background:dark?"rgba(255,255,255,0.05)":"rgba(0,0,0,0.05)" }}>
+            <span style={{ fontSize:13 }}>⏱</span>
+            <span style={{ fontSize:13, fontWeight:900, color:tp, fontFamily:"'Nunito',sans-serif",
+              fontVariantNumeric:"tabular-nums" }}>
+              {Math.floor(elapsed/60)}:{String(elapsed%60).padStart(2,"0")}
+            </span>
+          </div>
+          {/* Q counter */}
+          <div style={{ padding:"6px 14px", borderRadius:99, background:`${cfg.color}22`,
+            color:cfg.color, fontSize:11, fontWeight:900, fontFamily:"'Nunito',sans-serif" }}>
+            {qIdx+1} / {questions.length}
+          </div>
+        </div>
+      </div>
+
+      {/* Progress bar */}
+      <div style={{ marginBottom:24 }}>
+        <div style={{ height:5, borderRadius:99, background:dark?"rgba(255,255,255,0.06)":"rgba(0,0,0,0.06)", overflow:"hidden" }}>
+          <div style={{ height:"100%", width:`${progress}%`, borderRadius:99,
+            background:`linear-gradient(90deg,${cfg.color},${cfg.color}cc)`,
+            transition:"width 0.4s ease", boxShadow:`0 0 8px ${cfg.color}88` }} />
+        </div>
+      </div>
+
+      {/* Question card */}
+      <div style={{ padding:"28px 26px", borderRadius:20, marginBottom:20,
+        background:dark?"rgba(255,255,255,0.04)":"rgba(255,255,255,0.85)",
+        border:dark?"1px solid rgba(255,255,255,0.08)":"1px solid rgba(0,0,0,0.06)",
+        boxShadow:"0 4px 24px rgba(0,0,0,0.08)" }}>
+        <div style={{ fontSize:10, fontWeight:800, letterSpacing:2, textTransform:"uppercase",
+          color:cfg.color, fontFamily:"'Nunito',sans-serif", marginBottom:10 }}>
+          QUESTION {qIdx+1}
+        </div>
+        <div style={{ fontSize:17, fontWeight:700, color:tp, fontFamily:"'Nunito',sans-serif",
+          lineHeight:1.6 }}>{q.question}</div>
+      </div>
+
+      {/* Options */}
+      <div style={{ display:"flex", flexDirection:"column", gap:10, marginBottom:24 }}>
+        {q.options.map((opt, i) => (
+          <div key={i} onClick={() => !confirmed && setSelected(opt)}
+            style={{ padding:"16px 20px", borderRadius:14, cursor:confirmed?"default":"pointer",
+              display:"flex", alignItems:"center", gap:14,
+              transition:"all 0.18s", ...getOptStyle(opt) }}>
+            <div style={{ width:32, height:32, borderRadius:10, flexShrink:0,
+              display:"flex", alignItems:"center", justifyContent:"center",
+              fontWeight:900, fontSize:12, fontFamily:"'Nunito',sans-serif",
+              background: confirmed
+                ? opt===q.answer?"#22c55e":opt===selected?"#ef4444":"rgba(255,255,255,0.08)"
+                : selected===opt?cfg.color:"rgba(255,255,255,0.08)",
+              color:confirmed
+                ? opt===q.answer||opt===selected?"#fff":"#666"
+                : selected===opt?"#fff":"#888" }}>
+              {labels[i]}
+            </div>
+            <span style={{ fontSize:14, fontWeight:600, fontFamily:"'Nunito',sans-serif",
+              color:confirmed
+                ? opt===q.answer?"#22c55e":opt===selected?"#ef4444":dark?"#555":"#aaa"
+                : selected===opt?cfg.color:tp }}>
+              {opt}
+            </span>
+            {confirmed && opt===q.answer && <span style={{ marginLeft:"auto", fontSize:18 }}>✅</span>}
+            {confirmed && opt===selected && opt!==q.answer && <span style={{ marginLeft:"auto", fontSize:18 }}>❌</span>}
+          </div>
+        ))}
+      </div>
+
+      {/* Action button */}
+      <div style={{ display:"flex", justifyContent:"flex-end", gap:12 }}>
+        {!confirmed ? (
+          <ArenaBtn onClick={confirm} disabled={!selected} color={cfg.color}>
+            Confirm Answer →
+          </ArenaBtn>
+        ) : (
+          <ArenaBtn onClick={next} color={cfg.color}>
+            {qIdx+1 < questions.length ? "Next Question →" : "See Results 🎉"}
+          </ArenaBtn>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─── Result Screen ────────────────────────────────────────────────────────────
+function ArenaResultScreen({ result, userEmail, darkMode, onPlayAgain, onHome }) {
+  const dark  = darkMode;
+  const tp    = dark?"#f0f0f0":"#1a1a2e";
+  const cfg   = DIFFICULTY_CONFIG[result.difficulty];
+  const allSubs = ARENA_CATEGORIES.flatMap(c => c.subs);
+  const sub   = allSubs.find(s => s.id === result.subId);
+  const cat   = ARENA_CATEGORIES.find(c => c.subs.some(s => s.id === result.subId));
+
+  const correct  = result.correct;
+  const total    = result.questions.length;
+  const wrong    = total - correct;
+  const accuracy = Math.round((correct/total)*100);
+  const score    = correct * cfg.points;
+  const mins     = Math.floor(result.elapsed/60);
+  const secs     = result.elapsed%60;
+
+  const grade = accuracy===100?{ label:"PERFECT! 🌟",color:"#f59e0b" }
+               :accuracy>=80  ?{ label:"Excellent! 🎯",color:"#22c55e" }
+               :accuracy>=60  ?{ label:"Good Job! 👍", color:"#6366f1" }
+               :accuracy>=40  ?{ label:"Keep Going 💪",color:"#f59e0b" }
+               :              { label:"Try Again 🔄",  color:"#ef4444" };
+
+  // Persist to leaderboard & stats
+  useEffect(() => {
+    const user = LS.get("visionbook_users",[]).find(u=>u.email===userEmail);
+    if (!user) return;
+
+    // Update leaderboard
+    const lb   = LS.get(`visionbook_arena_lb_${result.subId}`, []);
+    lb.push({ name:user.name, score, accuracy, difficulty:result.difficulty,
+              category:sub?.label||result.subId, date:new Date().toLocaleDateString() });
+    lb.sort((a,b)=>b.score-a.score);
+    LS.set(`visionbook_arena_lb_${result.subId}`, lb.slice(0,20));
+
+    // Update stats
+    const stats = LS.get(`visionbook_arena_stats_${userEmail}`,
+      { totalSessions:0, totalPoints:0, highestScore:0, bestAccuracy:0, fastestQuiz:9999, categoryCounts:{} });
+    stats.totalSessions++;
+    stats.totalPoints    += score;
+    stats.highestScore   = Math.max(stats.highestScore, score);
+    stats.bestAccuracy   = Math.max(stats.bestAccuracy, accuracy);
+    stats.fastestQuiz    = Math.min(stats.fastestQuiz, result.elapsed);
+    stats.categoryCounts = stats.categoryCounts || {};
+    if (cat) stats.categoryCounts[cat.id] = (stats.categoryCounts[cat.id]||0)+1;
+    LS.set(`visionbook_arena_stats_${userEmail}`, stats);
+
+    // Update achievements
+    const earned  = LS.get(`visionbook_arena_achievements_${userEmail}`, []);
+    const newOnes = checkAchievements(stats, earned);
+    if (newOnes.length) LS.set(`visionbook_arena_achievements_${userEmail}`, [...earned, ...newOnes]);
+  }, []);
+
+  return (
+    <div style={{ padding:"32px 28px 48px", maxWidth:600, margin:"0 auto" }}>
+      {/* Grade banner */}
+      <div style={{ textAlign:"center", padding:"32px 24px", borderRadius:24, marginBottom:28,
+        background:dark?"rgba(255,255,255,0.03)":"rgba(255,255,255,0.85)",
+        border:`2px solid ${grade.color}44`,
+        boxShadow:`0 16px 56px ${grade.color}22`,
+        position:"relative", overflow:"hidden" }}>
+        <div style={{ position:"absolute", inset:0, background:`radial-gradient(circle at 50% 0%,${grade.color}18,transparent 60%)`, pointerEvents:"none" }} />
+        <div style={{ position:"absolute", top:0, left:0, right:0, height:4,
+          background:`linear-gradient(90deg,${cfg.color},${grade.color},${cfg.color})` }} />
+        <div style={{ fontSize:56, marginBottom:8 }}>{sub?.emoji||"🎯"}</div>
+        <div style={{ fontSize:26, fontWeight:900, color:grade.color, fontFamily:"'Nunito',sans-serif",
+          marginBottom:6 }}>{grade.label}</div>
+        <div style={{ fontSize:52, fontWeight:900, color:tp, fontFamily:"'Nunito',sans-serif",
+          letterSpacing:-2, lineHeight:1, marginBottom:4 }}>{score}</div>
+        <div style={{ fontSize:12, color:"#888", fontFamily:"'Nunito',sans-serif" }}>points earned</div>
+      </div>
+
+      {/* Stats grid */}
+      <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr 1fr", gap:12, marginBottom:24 }}>
+        {[
+          { label:"Correct",  val:correct,         color:"#22c55e", emoji:"✅" },
+          { label:"Wrong",    val:wrong,            color:"#ef4444", emoji:"❌" },
+          { label:"Accuracy", val:`${accuracy}%`,  color:grade.color, emoji:"🎯" },
+          { label:"Time",     val:`${mins}:${String(secs).padStart(2,"0")}`, color:"#6366f1", emoji:"⏱" },
+        ].map(stat => (
+          <div key={stat.label}
+            style={{ padding:"14px 8px", borderRadius:16, textAlign:"center",
+              background:dark?"rgba(255,255,255,0.03)":"rgba(255,255,255,0.8)",
+              border:dark?"1px solid rgba(255,255,255,0.07)":"1px solid rgba(0,0,0,0.06)" }}>
+            <div style={{ fontSize:18, marginBottom:4 }}>{stat.emoji}</div>
+            <div style={{ fontSize:20, fontWeight:900, color:stat.color, fontFamily:"'Nunito',sans-serif" }}>{stat.val}</div>
+            <div style={{ fontSize:10, color:"#888", fontFamily:"'Nunito',sans-serif", marginTop:2 }}>{stat.label}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Accuracy bar */}
+      <div style={{ padding:"18px 20px", borderRadius:16, marginBottom:24,
+        background:dark?"rgba(255,255,255,0.03)":"rgba(255,255,255,0.8)",
+        border:dark?"1px solid rgba(255,255,255,0.07)":"1px solid rgba(0,0,0,0.06)" }}>
+        <ArenaProgress value={accuracy} max={100} color={grade.color} label="Overall Accuracy" height={12} />
+      </div>
+
+      {/* Answer review */}
+      <div style={{ marginBottom:28 }}>
+        <div style={{ fontSize:11, fontWeight:800, letterSpacing:2, textTransform:"uppercase",
+          color:"#888", fontFamily:"'Nunito',sans-serif", marginBottom:12 }}>ANSWER SUMMARY</div>
+        <div style={{ display:"flex", gap:6, flexWrap:"wrap" }}>
+          {result.answers.map((a,i) => (
+            <div key={i}
+              style={{ width:32, height:32, borderRadius:8, display:"flex", alignItems:"center",
+                justifyContent:"center", fontSize:11, fontWeight:800, fontFamily:"'Nunito',sans-serif",
+                background:a.correct?"rgba(34,197,94,0.15)":"rgba(239,68,68,0.15)",
+                color:a.correct?"#22c55e":"#ef4444",
+                border:`1px solid ${a.correct?"#22c55e44":"#ef444444"}` }}>
+              {i+1}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div style={{ display:"flex", gap:12, justifyContent:"center", flexWrap:"wrap" }}>
+        <ArenaBtn onClick={onPlayAgain} color={cfg.color}>🔄 Play Again</ArenaBtn>
+        <ArenaBtn onClick={onHome} outline color="#6366f1">🏠 Arena Home</ArenaBtn>
+      </div>
+    </div>
+  );
+}
+
+// ─── Leaderboard ─────────────────────────────────────────────────────────────
+function ArenaLeaderboard({ darkMode, onBack, userEmail }) {
+  const dark = darkMode;
+  const tp   = dark?"#f0f0f0":"#1a1a2e";
+  const allSubs = ARENA_CATEGORIES.flatMap(c => c.subs);
+  const [selectedSub, setSelectedSub] = useState(allSubs[0]?.id || "math");
+  const [selCat, setSelCat] = useState("all");
+
+  const filteredSubs = selCat==="all" ? allSubs
+    : ARENA_CATEGORIES.find(c=>c.id===selCat)?.subs || [];
+  const activeSubs = filteredSubs.length>0?filteredSubs:allSubs;
+  const lb = LS.get(`visionbook_arena_lb_${selectedSub}`, []);
+
+  return (
+    <div style={{ padding:"28px 28px 48px" }}>
+      {/* Header */}
+      <div style={{ display:"flex", alignItems:"center", gap:14, marginBottom:28 }}>
+        <button onClick={onBack}
+          style={{ width:38, height:38, borderRadius:12, border:"1px solid rgba(255,255,255,0.1)",
+            background:"transparent", color:"#888", fontSize:16, cursor:"pointer",
+            display:"flex", alignItems:"center", justifyContent:"center" }}>←</button>
+        <div>
+          <h2 style={{ fontSize:24, fontWeight:900, color:tp, fontFamily:"'Nunito',sans-serif", margin:0 }}>🏅 Leaderboard</h2>
+          <p style={{ fontSize:12, color:"#888", fontFamily:"'Nunito',sans-serif", margin:0 }}>Top scores per topic</p>
+        </div>
+      </div>
+
+      {/* Category filter tabs */}
+      <div style={{ display:"flex", gap:8, marginBottom:16, flexWrap:"wrap" }}>
+        {[{id:"all",label:"All",color:"#6366f1"},...ARENA_CATEGORIES.map(c=>({id:c.id,label:c.label,color:c.color}))].map(c => (
+          <button key={c.id} onClick={() => { setSelCat(c.id); if(c.id!=="all"){ const s=ARENA_CATEGORIES.find(x=>x.id===c.id)?.subs[0]; if(s) setSelectedSub(s.id); } }}
+            style={{ padding:"6px 16px", borderRadius:99,
+              border:`1px solid ${selCat===c.id?c.color:"rgba(255,255,255,0.1)"}`,
+              background:selCat===c.id?`${c.color}22`:"transparent",
+              color:selCat===c.id?c.color:dark?"#888":"#666",
+              fontSize:11.5, fontWeight:800, fontFamily:"'Nunito',sans-serif", cursor:"pointer" }}>
+            {c.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Topic pills */}
+      <div style={{ display:"flex", flexWrap:"wrap", gap:8, marginBottom:24,
+        padding:"14px 16px", borderRadius:16,
+        background:dark?"rgba(255,255,255,0.02)":"rgba(255,255,255,0.6)",
+        border:dark?"1px solid rgba(255,255,255,0.05)":"1px solid rgba(0,0,0,0.05)" }}>
+        {activeSubs.slice(0,15).map(s => (
+          <button key={s.id} onClick={() => setSelectedSub(s.id)}
+            style={{ padding:"5px 13px", borderRadius:99,
+              border:`1px solid ${selectedSub===s.id?"#6366f1":"rgba(255,255,255,0.1)"}`,
+              background:selectedSub===s.id?"rgba(99,102,241,0.2)":"transparent",
+              color:selectedSub===s.id?"#a78bfa":dark?"#777":"#888",
+              fontSize:11, fontWeight:700, fontFamily:"'Nunito',sans-serif", cursor:"pointer", transition:"all 0.15s" }}>
+            {s.emoji} {s.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Table */}
+      {lb.length === 0 ? (
+        <div style={{ textAlign:"center", padding:"56px 20px",
+          borderRadius:20, border:dark?"1px solid rgba(255,255,255,0.06)":"1px solid rgba(0,0,0,0.06)",
+          background:dark?"rgba(255,255,255,0.02)":"rgba(255,255,255,0.7)" }}>
+          <div style={{ fontSize:52, marginBottom:16 }}>📭</div>
+          <div style={{ fontSize:16, fontWeight:800, color:tp, fontFamily:"'Nunito',sans-serif", marginBottom:6 }}>No scores yet</div>
+          <div style={{ fontSize:13, color:"#888", fontFamily:"'Nunito',sans-serif" }}>Complete a quiz to appear on the leaderboard!</div>
+        </div>
+      ) : (
+        <div style={{ borderRadius:20, overflow:"hidden",
+          border:dark?"1px solid rgba(255,255,255,0.07)":"1px solid rgba(0,0,0,0.07)",
+          boxShadow:"0 4px 24px rgba(0,0,0,0.08)" }}>
+          {/* Table header */}
+          <div style={{ display:"grid", gridTemplateColumns:"44px 1fr auto", gap:0,
+            padding:"10px 18px", background:dark?"rgba(255,255,255,0.04)":"rgba(99,102,241,0.06)",
+            borderBottom:dark?"1px solid rgba(255,255,255,0.06)":"1px solid rgba(0,0,0,0.06)" }}>
+            {["Rank","Player","Score"].map(h => (
+              <div key={h} style={{ fontSize:10, fontWeight:800, color:"#888", letterSpacing:1.5,
+                textTransform:"uppercase", fontFamily:"'Nunito',sans-serif" }}>{h}</div>
+            ))}
+          </div>
+          {lb.slice(0,10).map((entry, i) => (
+            <div key={i}
+              style={{ display:"grid", gridTemplateColumns:"44px 1fr auto", alignItems:"center", gap:0,
+                padding:"14px 18px",
+                background:i===0?(dark?"rgba(245,158,11,0.08)":"rgba(245,158,11,0.06)"):
+                           i===1?(dark?"rgba(156,163,175,0.05)":"rgba(156,163,175,0.04)"):
+                           dark?"rgba(255,255,255,0.02)":"rgba(255,255,255,0.65)",
+                borderBottom:i<lb.length-1?dark?"1px solid rgba(255,255,255,0.04)":"1px solid rgba(0,0,0,0.04)":"none",
+                transition:"background 0.15s" }}>
+              {/* Rank */}
+              <div style={{ fontSize:i<3?22:13, fontWeight:900, color:i===0?"#f59e0b":i===1?"#9ca3af":i===2?"#b45309":"#555",
+                fontFamily:"'Nunito',sans-serif" }}>
+                {i===0?"🥇":i===1?"🥈":i===2?"🥉":i+1}
+              </div>
+              {/* Player */}
+              <div>
+                <div style={{ fontSize:14, fontWeight:800, color:entry.name===LS.get("visionbook_users",[]).find(u=>u.email===userEmail)?.name?"#6366f1":tp,
+                  fontFamily:"'Nunito',sans-serif" }}>{entry.name}</div>
+                <div style={{ fontSize:10, color:"#888", fontFamily:"'Nunito',sans-serif" }}>
+                  {entry.date} · {DIFFICULTY_CONFIG[entry.difficulty]?.label} · {entry.accuracy}% acc
+                </div>
+              </div>
+              {/* Score */}
+              <div style={{ textAlign:"right" }}>
+                <div style={{ fontSize:18, fontWeight:900, color:i===0?"#f59e0b":"#6366f1",
+                  fontFamily:"'Nunito',sans-serif" }}>{entry.score}</div>
+                <div style={{ fontSize:10, color:"#888", fontFamily:"'Nunito',sans-serif" }}>pts</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Achievements ─────────────────────────────────────────────────────────────
+function ArenaAchievements({ darkMode, onBack, userEmail }) {
+  const dark   = darkMode;
+  const tp     = dark?"#f0f0f0":"#1a1a2e";
+  const earned = LS.get(`visionbook_arena_achievements_${userEmail}`, []);
+  const pct    = Math.round((earned.length/ALL_ACHIEVEMENTS.length)*100);
+
+  return (
+    <div style={{ padding:"28px 28px 48px" }}>
+      {/* Header */}
+      <div style={{ display:"flex", alignItems:"center", gap:14, marginBottom:28 }}>
+        <button onClick={onBack}
+          style={{ width:38, height:38, borderRadius:12, border:"1px solid rgba(255,255,255,0.1)",
+            background:"transparent", color:"#888", fontSize:16, cursor:"pointer",
+            display:"flex", alignItems:"center", justifyContent:"center" }}>←</button>
+        <div style={{ flex:1 }}>
+          <h2 style={{ fontSize:24, fontWeight:900, color:tp, fontFamily:"'Nunito',sans-serif", margin:"0 0 2px" }}>🏆 Achievements</h2>
+          <p style={{ fontSize:12, color:"#888", fontFamily:"'Nunito',sans-serif", margin:0 }}>{earned.length} / {ALL_ACHIEVEMENTS.length} unlocked</p>
+        </div>
+      </div>
+
+      {/* Progress */}
+      <div style={{ padding:"20px 22px", borderRadius:18, marginBottom:28,
+        background:dark?"rgba(255,255,255,0.03)":"rgba(255,255,255,0.8)",
+        border:dark?"1px solid rgba(255,255,255,0.07)":"1px solid rgba(0,0,0,0.06)" }}>
+        <div style={{ display:"flex", justifyContent:"space-between", marginBottom:10 }}>
+          <span style={{ fontSize:13, fontWeight:800, color:tp, fontFamily:"'Nunito',sans-serif" }}>Collection Progress</span>
+          <span style={{ fontSize:13, fontWeight:900, color:"#f59e0b", fontFamily:"'Nunito',sans-serif" }}>{pct}%</span>
+        </div>
+        <ArenaProgress value={earned.length} max={ALL_ACHIEVEMENTS.length} color="#f59e0b" height={12} />
+      </div>
+
+      {/* Earned first */}
+      {earned.length > 0 && (
+        <div style={{ marginBottom:24 }}>
+          <div style={{ fontSize:11, fontWeight:800, letterSpacing:2, textTransform:"uppercase",
+            color:"#f59e0b", fontFamily:"'Nunito',sans-serif", marginBottom:12 }}>UNLOCKED</div>
+          <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(220px,1fr))", gap:12 }}>
+            {ALL_ACHIEVEMENTS.filter(a=>earned.includes(a.id)).map(ach => (
+              <div key={ach.id}
+                style={{ padding:"18px 20px", borderRadius:18,
+                  border:"1.5px solid rgba(245,158,11,0.4)",
+                  background:dark?"rgba(245,158,11,0.1)":"rgba(245,158,11,0.07)",
+                  boxShadow:"0 4px 20px rgba(245,158,11,0.15)" }}>
+                <div style={{ display:"flex", alignItems:"center", gap:12 }}>
+                  <div style={{ width:46, height:46, borderRadius:14, flexShrink:0,
+                    background:"linear-gradient(135deg,#f59e0b,#ea580c)",
+                    display:"flex", alignItems:"center", justifyContent:"center",
+                    fontSize:24, boxShadow:"0 6px 20px rgba(245,158,11,0.5)" }}>{ach.emoji}</div>
+                  <div>
+                    <div style={{ fontSize:13, fontWeight:900, color:tp, fontFamily:"'Nunito',sans-serif" }}>{ach.label}</div>
+                    <div style={{ fontSize:11, color:"#888", fontFamily:"'Nunito',sans-serif", lineHeight:1.5, marginTop:2 }}>{ach.desc}</div>
+                  </div>
+                </div>
+                <div style={{ marginTop:10, fontSize:10, color:"#f59e0b", fontWeight:900,
+                  fontFamily:"'Nunito',sans-serif", letterSpacing:1 }}>✓ UNLOCKED</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Locked */}
+      <div>
+        <div style={{ fontSize:11, fontWeight:800, letterSpacing:2, textTransform:"uppercase",
+          color:dark?"#444":"#ccc", fontFamily:"'Nunito',sans-serif", marginBottom:12 }}>LOCKED</div>
+        <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(220px,1fr))", gap:12 }}>
+          {ALL_ACHIEVEMENTS.filter(a=>!earned.includes(a.id)).map(ach => (
+            <div key={ach.id}
+              style={{ padding:"18px 20px", borderRadius:18, opacity:0.5,
+                border:dark?"1px solid rgba(255,255,255,0.06)":"1px solid rgba(0,0,0,0.07)",
+                background:dark?"rgba(255,255,255,0.02)":"rgba(255,255,255,0.6)" }}>
+              <div style={{ display:"flex", alignItems:"center", gap:12 }}>
+                <div style={{ width:46, height:46, borderRadius:14, flexShrink:0,
+                  background:"rgba(255,255,255,0.06)",
+                  display:"flex", alignItems:"center", justifyContent:"center", fontSize:22 }}>🔒</div>
+                <div>
+                  <div style={{ fontSize:13, fontWeight:900, color:tp, fontFamily:"'Nunito',sans-serif" }}>{ach.label}</div>
+                  <div style={{ fontSize:11, color:"#888", fontFamily:"'Nunito',sans-serif", lineHeight:1.5, marginTop:2 }}>{ach.desc}</div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Analytics ───────────────────────────────────────────────────────────────
+function ArenaAnalytics({ darkMode, onBack, userEmail }) {
+  const dark  = darkMode;
+  const tp    = dark?"#f0f0f0":"#1a1a2e";
+  const stats = LS.get(`visionbook_arena_stats_${userEmail}`, {
+    totalSessions:0, totalPoints:0, highestScore:0, bestAccuracy:0, fastestQuiz:9999, categoryCounts:{} });
+  const cc = stats.categoryCounts||{};
+  const maxCat = Math.max(...ARENA_CATEGORIES.map(c=>cc[c.id]||0),1);
+
+  return (
+    <div style={{ padding:"28px 28px 48px" }}>
+      <div style={{ display:"flex", alignItems:"center", gap:14, marginBottom:28 }}>
+        <button onClick={onBack}
+          style={{ width:38, height:38, borderRadius:12, border:"1px solid rgba(255,255,255,0.1)",
+            background:"transparent", color:"#888", fontSize:16, cursor:"pointer",
+            display:"flex", alignItems:"center", justifyContent:"center" }}>←</button>
+        <div>
+          <h2 style={{ fontSize:24, fontWeight:900, color:tp, fontFamily:"'Nunito',sans-serif", margin:0 }}>📊 Analytics</h2>
+          <p style={{ fontSize:12, color:"#888", fontFamily:"'Nunito',sans-serif", margin:0 }}>Your performance overview</p>
+        </div>
+      </div>
+
+      {/* Stats grid */}
+      <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(150px,1fr))", gap:14, marginBottom:28 }}>
+        {[
+          { label:"Total Sessions",  val:stats.totalSessions||0,            emoji:"🎮", color:"#6366f1" },
+          { label:"Total Points",    val:stats.totalPoints||0,              emoji:"💎", color:"#f59e0b" },
+          { label:"Best Score",      val:stats.highestScore||0,             emoji:"⭐", color:"#22c55e" },
+          { label:"Best Accuracy",   val:`${stats.bestAccuracy||0}%`,       emoji:"🎯", color:"#a78bfa" },
+          { label:"Fastest Quiz",    val:stats.fastestQuiz<9999?`${stats.fastestQuiz}s`:"—", emoji:"⚡", color:"#ef4444" },
+          { label:"Achievements",    val:LS.get(`visionbook_arena_achievements_${userEmail}`,[]).length, emoji:"🏆", color:"#f59e0b" },
+        ].map(s => (
+          <div key={s.label}
+            style={{ padding:"20px 16px", borderRadius:18, textAlign:"center",
+              background:dark?"rgba(255,255,255,0.03)":"rgba(255,255,255,0.82)",
+              border:dark?"1px solid rgba(255,255,255,0.07)":"1px solid rgba(0,0,0,0.07)",
+              boxShadow:`0 4px 18px ${s.color}11` }}>
+            <div style={{ fontSize:26, marginBottom:8 }}>{s.emoji}</div>
+            <div style={{ fontSize:24, fontWeight:900, color:s.color, fontFamily:"'Nunito',sans-serif", letterSpacing:-0.5 }}>{s.val}</div>
+            <div style={{ fontSize:10.5, color:"#888", fontFamily:"'Nunito',sans-serif", marginTop:3 }}>{s.label}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Category bars */}
+      <div style={{ padding:"22px 24px", borderRadius:20, marginBottom:20,
+        background:dark?"rgba(255,255,255,0.03)":"rgba(255,255,255,0.82)",
+        border:dark?"1px solid rgba(255,255,255,0.07)":"1px solid rgba(0,0,0,0.06)" }}>
+        <div style={{ fontSize:12, fontWeight:900, color:tp, fontFamily:"'Nunito',sans-serif",
+          marginBottom:18, letterSpacing:-0.2 }}>Category Activity</div>
+        {ARENA_CATEGORIES.map(cat => {
+          const count = cc[cat.id]||0;
+          const pct   = Math.round((count/maxCat)*100);
+          return (
+            <div key={cat.id} style={{ marginBottom:18 }}>
+              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:7 }}>
+                <span style={{ fontSize:13, fontWeight:700, color:tp, fontFamily:"'Nunito',sans-serif",
+                  display:"flex", alignItems:"center", gap:7 }}>
+                  <span style={{ fontSize:16 }}>{cat.emoji}</span>{cat.label}
+                </span>
+                <span style={{ fontSize:13, fontWeight:900, color:cat.color,
+                  fontFamily:"'Nunito',sans-serif" }}>{count} <span style={{ fontSize:10, color:"#888", fontWeight:600 }}>games</span></span>
+              </div>
+              <div style={{ height:10, borderRadius:99, background:dark?"rgba(255,255,255,0.06)":"rgba(0,0,0,0.06)", overflow:"hidden" }}>
+                <div style={{ height:"100%", width:`${pct}%`, borderRadius:99,
+                  background:`linear-gradient(90deg,${cat.gradFrom||cat.color},${cat.gradTo||cat.color})`,
+                  transition:"width 0.7s cubic-bezier(0.34,1.56,0.64,1)",
+                  boxShadow:`0 0 14px ${cat.glow}` }} />
+              </div>
+            </div>
+          );
+        })}
+        {stats.totalSessions===0 && (
+          <div style={{ textAlign:"center", padding:"20px 0 8px", color:"#555",
+            fontFamily:"'Nunito',sans-serif", fontSize:13 }}>
+            Complete quizzes to see your analytics! 🎮
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─── Arena Profile ────────────────────────────────────────────────────────────
+function ArenaProfile({ darkMode, onBack, userEmail }) {
+  const dark   = darkMode;
+  const tp     = dark?"#f0f0f0":"#1a1a2e";
+  const tm     = dark?"#888":"#999";
+  const pKey   = `visionbook_arena_profile_${userEmail}`;
+  const baseUser = LS.get("visionbook_users",[]).find(u=>u.email===userEmail) || {};
+  const [prof, setProf] = useState(() => LS.get(pKey, {
+    bio:"", instagram:"", hobbies:[], totalPoints:0, achievements:[] }));
+  const [editing,  setEditing]  = useState(false);
+  const [newHobby, setNewHobby] = useState("");
+  const [form,     setForm]     = useState({...prof});
+
+  const stats   = LS.get(`visionbook_arena_stats_${userEmail}`, { totalSessions:0, totalPoints:0, highestScore:0, bestAccuracy:0 });
+  const earned  = LS.get(`visionbook_arena_achievements_${userEmail}`, []);
+
+  const saveProfile = () => {
+    LS.set(pKey, form);
+    setProf(form);
+    setEditing(false);
+  };
+
+  const inpS = { width:"100%", padding:"10px 13px", borderRadius:10,
+    border:dark?"1px solid rgba(255,255,255,0.12)":"1px solid #ddd",
+    background:dark?"rgba(255,255,255,0.05)":"#f5f5f5",
+    color:tp, fontSize:13, outline:"none",
+    fontFamily:"'Nunito',sans-serif", boxSizing:"border-box" };
+
+  return (
+    <div style={{ padding:"28px 28px 48px" }}>
+      <div style={{ display:"flex", alignItems:"center", gap:14, marginBottom:28 }}>
+        <button onClick={onBack}
+          style={{ width:38, height:38, borderRadius:12, border:"1px solid rgba(255,255,255,0.1)",
+            background:"transparent", color:"#888", fontSize:16, cursor:"pointer",
+            display:"flex", alignItems:"center", justifyContent:"center" }}>←</button>
+        <h2 style={{ fontSize:24, fontWeight:900, color:tp, fontFamily:"'Nunito',sans-serif", margin:0 }}>👤 Arena Profile</h2>
+      </div>
+
+      {/* Profile card */}
+      <div style={{ padding:"28px 26px", borderRadius:22, marginBottom:24,
+        background:dark?"rgba(255,255,255,0.03)":"rgba(255,255,255,0.85)",
+        border:"1px solid rgba(99,102,241,0.2)",
+        boxShadow:"0 8px 36px rgba(99,102,241,0.1)", position:"relative", overflow:"hidden" }}>
+        <div style={{ position:"absolute", top:0, left:0, right:0, height:3,
+          background:"linear-gradient(90deg,#6366f1,#a78bfa,#f59e0b)" }} />
+        <div style={{ display:"flex", alignItems:"flex-start", gap:18, flexWrap:"wrap" }}>
+          {/* Avatar */}
+          <div style={{ width:72, height:72, borderRadius:20, flexShrink:0,
+            background:"linear-gradient(135deg,#6366f1,#a78bfa)",
+            display:"flex", alignItems:"center", justifyContent:"center",
+            color:"#fff", fontWeight:900, fontSize:30,
+            boxShadow:"0 8px 28px rgba(99,102,241,0.5)" }}>
+            {firstLetter(baseUser.name||"U")}
+          </div>
+          <div style={{ flex:1 }}>
+            <div style={{ fontSize:20, fontWeight:900, color:tp, fontFamily:"'Nunito',sans-serif", marginBottom:3 }}>
+              {baseUser.name || "Unknown Player"}
+            </div>
+            <div style={{ fontSize:12, color:tm, fontFamily:"'Nunito',sans-serif", marginBottom:6 }}>
+              📧 {userEmail}
+            </div>
+            {prof.bio && (
+              <div style={{ fontSize:13, color:tp, fontFamily:"'Nunito',sans-serif",
+                lineHeight:1.6, fontStyle:"italic", opacity:0.8 }}>"{prof.bio}"</div>
+            )}
+            {prof.instagram && (
+              <div style={{ fontSize:12, color:"#e1306c", fontFamily:"'Nunito',sans-serif", marginTop:5, fontWeight:700 }}>
+                📸 {prof.instagram}
+              </div>
+            )}
+            {prof.hobbies.length>0 && (
+              <div style={{ display:"flex", flexWrap:"wrap", gap:6, marginTop:8 }}>
+                {prof.hobbies.map((h,i) => (
+                  <span key={i} style={{ padding:"3px 12px", borderRadius:99,
+                    background:"rgba(99,102,241,0.15)", color:"#a78bfa",
+                    fontSize:11, fontWeight:700, fontFamily:"'Nunito',sans-serif" }}>{h}</span>
+                ))}
+              </div>
+            )}
+          </div>
+          <button onClick={() => { setForm({...prof}); setEditing(!editing); }}
+            style={{ padding:"8px 16px", borderRadius:10,
+              border:"1px solid rgba(99,102,241,0.4)", background:"rgba(99,102,241,0.1)",
+              color:"#6366f1", fontSize:12, fontWeight:800,
+              fontFamily:"'Nunito',sans-serif", cursor:"pointer" }}>
+            {editing?"Cancel":"✏️ Edit"}
+          </button>
+        </div>
+
+        {/* Edit form */}
+        {editing && (
+          <div style={{ marginTop:20, paddingTop:20,
+            borderTop:dark?"1px solid rgba(255,255,255,0.07)":"1px solid rgba(0,0,0,0.06)",
+            display:"flex", flexDirection:"column", gap:12 }}>
+            <div>
+              <div style={{ fontSize:10, fontWeight:800, color:"#888", marginBottom:5, textTransform:"uppercase", letterSpacing:0.8, fontFamily:"'Nunito',sans-serif" }}>Bio</div>
+              <textarea value={form.bio} onChange={e => setForm(p=>({...p,bio:e.target.value}))}
+                placeholder="Tell everyone about yourself..."
+                style={{ ...inpS, height:72, resize:"none", lineHeight:1.6 }} />
+            </div>
+            <div>
+              <div style={{ fontSize:10, fontWeight:800, color:"#888", marginBottom:5, textTransform:"uppercase", letterSpacing:0.8, fontFamily:"'Nunito',sans-serif" }}>Instagram Handle</div>
+              <input value={form.instagram} onChange={e => setForm(p=>({...p,instagram:e.target.value}))}
+                placeholder="@yourhandle" style={inpS} />
+            </div>
+            <div>
+              <div style={{ fontSize:10, fontWeight:800, color:"#888", marginBottom:5, textTransform:"uppercase", letterSpacing:0.8, fontFamily:"'Nunito',sans-serif" }}>Hobbies</div>
+              <div style={{ display:"flex", gap:8, marginBottom:8 }}>
+                <input value={newHobby} onChange={e => setNewHobby(e.target.value)}
+                  onKeyDown={e => { if(e.key==="Enter"&&newHobby.trim()){ setForm(p=>({...p,hobbies:[...p.hobbies,newHobby.trim()]})); setNewHobby(""); } }}
+                  placeholder="Add hobby & press Enter" style={{ ...inpS, flex:1 }} />
+              </div>
+              <div style={{ display:"flex", flexWrap:"wrap", gap:6 }}>
+                {form.hobbies.map((h,i) => (
+                  <span key={i} onClick={() => setForm(p=>({...p,hobbies:p.hobbies.filter((_,j)=>j!==i)}))}
+                    style={{ padding:"4px 12px", borderRadius:99, cursor:"pointer",
+                      background:"rgba(99,102,241,0.15)", color:"#a78bfa",
+                      fontSize:11, fontWeight:700, fontFamily:"'Nunito',sans-serif" }}>
+                    {h} ✕
+                  </span>
+                ))}
+              </div>
+            </div>
+            <button onClick={saveProfile}
+              style={{ padding:"11px", borderRadius:12,
+                background:"linear-gradient(135deg,#6366f1,#8b5cf6)", border:"none",
+                color:"#fff", fontSize:13, fontWeight:800,
+                fontFamily:"'Nunito',sans-serif", cursor:"pointer" }}>
+              Save Profile ✓
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Stats row */}
+      <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(130px,1fr))", gap:12, marginBottom:24 }}>
+        {[
+          { label:"Quizzes Played", val:stats.totalSessions||0,   emoji:"🎮", color:"#6366f1" },
+          { label:"Total Points",   val:stats.totalPoints||0,     emoji:"💎", color:"#f59e0b" },
+          { label:"Best Score",     val:stats.highestScore||0,    emoji:"⭐", color:"#22c55e" },
+          { label:"Best Accuracy",  val:`${stats.bestAccuracy||0}%`, emoji:"🎯", color:"#a78bfa" },
+          { label:"Achievements",   val:earned.length,            emoji:"🏆", color:"#f59e0b" },
+        ].map(s => (
+          <div key={s.label}
+            style={{ padding:"16px 12px", borderRadius:16, textAlign:"center",
+              background:dark?"rgba(255,255,255,0.03)":"rgba(255,255,255,0.8)",
+              border:dark?"1px solid rgba(255,255,255,0.07)":"1px solid rgba(0,0,0,0.06)" }}>
+            <div style={{ fontSize:22, marginBottom:4 }}>{s.emoji}</div>
+            <div style={{ fontSize:20, fontWeight:900, color:s.color, fontFamily:"'Nunito',sans-serif" }}>{s.val}</div>
+            <div style={{ fontSize:10, color:tm, fontFamily:"'Nunito',sans-serif", marginTop:2 }}>{s.label}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Achievements earned */}
+      {earned.length>0 && (
+        <div style={{ padding:"20px 22px", borderRadius:18,
+          background:dark?"rgba(255,255,255,0.03)":"rgba(255,255,255,0.8)",
+          border:dark?"1px solid rgba(255,255,255,0.07)":"1px solid rgba(0,0,0,0.06)" }}>
+          <div style={{ fontSize:12, fontWeight:900, color:tp, fontFamily:"'Nunito',sans-serif", marginBottom:14 }}>🏆 Earned Achievements</div>
+          <div style={{ display:"flex", flexWrap:"wrap", gap:8 }}>
+            {earned.map(id => {
+              const ach = ALL_ACHIEVEMENTS.find(a=>a.id===id);
+              if (!ach) return null;
+              return (
+                <div key={id} title={ach.desc}
+                  style={{ padding:"6px 14px", borderRadius:99, display:"flex", alignItems:"center", gap:6,
+                    background:"rgba(245,158,11,0.15)", border:"1px solid rgba(245,158,11,0.4)",
+                    fontSize:12, color:"#f59e0b", fontWeight:800, fontFamily:"'Nunito',sans-serif" }}>
+                  {ach.emoji} {ach.label}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── MASTER ARENA CONTROLLER ──────────────────────────────────────────────────
+function KnowledgeArena({ darkMode, user }) {
+  const [screen,     setScreen]     = useState("home");
+  const [activeCat,  setActiveCat]  = useState(null);
+  const [activeSub,  setActiveSub]  = useState(null);
+  const [activeDiff, setActiveDiff] = useState(null);
+  const [quizResult, setQuizResult] = useState(null);
+
+  const goHome = () => { setScreen("home"); setActiveCat(null); setActiveSub(null); setActiveDiff(null); setQuizResult(null); };
+
+  const handleHomeSelect = (id) => {
+    if (["leaderboard","achievements","analytics","profile"].includes(id)) { setScreen(id); return; }
+    setActiveCat(id); setScreen("category");
+  };
+
+  const handleSubSelect = (subId) => { setActiveSub(subId); setScreen("difficulty"); };
+  const handleDiffStart = (subId, diff) => { setActiveSub(subId); setActiveDiff(diff); setScreen("quiz"); };
+  const handleComplete  = (result) => { setQuizResult(result); setScreen("result"); };
+
+  return (
+    <div style={{ width:"100%", height:"100%", overflowY:"auto" }}>
+      {screen==="home"         && <ArenaHome         darkMode={darkMode} onSelect={handleHomeSelect}  userEmail={user.email} />}
+      {screen==="category"     && <ArenaCategoryPage catId={activeCat}   darkMode={darkMode}           onSelectSub={handleSubSelect} onBack={goHome} />}
+      {screen==="difficulty"   && <ArenaDifficultyScreen subId={activeSub} darkMode={darkMode}         onStart={handleDiffStart} onBack={() => setScreen("category")} />}
+      {screen==="quiz"         && <ArenaQuizEngine   subId={activeSub}   difficulty={activeDiff}       userEmail={user.email} darkMode={darkMode} onComplete={handleComplete} onBack={() => setScreen("difficulty")} />}
+      {screen==="result"       && <ArenaResultScreen result={quizResult}                               userEmail={user.email} darkMode={darkMode} onPlayAgain={() => { setScreen("quiz"); }} onHome={goHome} />}
+      {screen==="leaderboard"  && <ArenaLeaderboard  darkMode={darkMode} onBack={goHome}               userEmail={user.email} />}
+      {screen==="achievements" && <ArenaAchievements darkMode={darkMode} onBack={goHome}               userEmail={user.email} />}
+      {screen==="analytics"    && <ArenaAnalytics    darkMode={darkMode} onBack={goHome}               userEmail={user.email} />}
+      {screen==="profile"      && <ArenaProfile      darkMode={darkMode} onBack={goHome}               userEmail={user.email} />}
+    </div>
+  );
+}
+
 // ─── AUTH SCREEN ──────────────────────────────────────────────────────────────
 function AuthScreen({ onLogin }) {
   const [mode,    setMode]    = useState("login");   // "login" | "register"
@@ -1140,10 +2447,11 @@ export default function App() {
   if (!user) return <AuthScreen onLogin={setUser} />;
 
   const navItems = [
-    { id:"notes",    icon:"📌", label:"Notes"   },
-    { id:"todo",     icon:"✅", label:"To-Do"   },
-    { id:"journal",  icon:"📖", label:"Journal" },
-    { id:"settings", icon:"⚙️", label:"Settings"},
+    { id:"notes",   icon:"📌", label:"Notes"   },
+    { id:"todo",    icon:"✅", label:"To-Do"   },
+    { id:"journal", icon:"📖", label:"Journal" },
+    { id:"arena",   icon:"⚡", label:"Arena"   },
+    { id:"settings",icon:"⚙️", label:"Settings"},
   ];
 
   return (
@@ -1235,7 +2543,10 @@ export default function App() {
               </div>
             </div>
           )}
-          {activePanel!=="notes" && (
+          {activePanel==="arena" && (
+            <KnowledgeArena darkMode={dark} user={user} />
+          )}
+          {activePanel!=="notes" && activePanel!=="arena" && (
             <div style={{ width:"100%", height:"100%", overflowY:"auto", padding:28 }}>
               <div style={{ maxWidth:620, margin:"0 auto" }}>
                 <div style={{ background:dark?"rgba(18,18,34,0.9)":"rgba(255,255,255,0.88)", backdropFilter:"blur(20px)", borderRadius:20, border:dark?"1px solid rgba(255,255,255,0.07)":"1px solid rgba(0,0,0,0.06)", boxShadow:"0 8px 36px rgba(0,0,0,0.12)", overflow:"hidden" }}>
